@@ -16,6 +16,7 @@
     <ProjectGuid>{2fc07791-8ee9-4518-b217-99fceb466edb}</ProjectGuid>
     <RootNamespace>MT3_0_2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>MT3_kadai</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
