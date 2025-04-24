@@ -73,36 +73,38 @@ Vector3 TransForm(const Vector3& vector, const Matrix4x4& matrix)
 {
 	Vector3 result = {};
 
+	result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + matrix.m[3][0];
+	result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + matrix.m[3][1];
+	result.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + matrix.m[3][2];
+	float w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] + vector.z * matrix.m[2][3] + matrix.m[3][3];
 
-	/*result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + 1.0f * matrix.m[2][0]+vector.z*matrix.m;
-	result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + 1.0f * matrix.m[2][1]+vector.z*;
-	result.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + 1.0f * matrix.m[2][2]+vector.z*;
 	assert(w != 0.0f);
 	result.x /= w;
 	result.y /= w;
-	return result;*/
+	result.z /= w;
 
+	return result;
 }
 
 static const int kRowHeight = 30;
 static const int kColuWidth = 80;
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label)
 {
-	Novice::ScreenPrintf(x , y+20, "%s", label);
+	Novice::ScreenPrintf(x, y + 20, "%s", label);
 	for (int row = 0; row < 4; ++row)
 	{
 		for (int colum = 0; colum < 4; ++colum)
 		{
-			Novice::ScreenPrintf(x+ colum* kColuWidth, y+40 + row* kRowHeight, "%6.02f", matrix.m[row][colum]);
+			Novice::ScreenPrintf(x + colum * kColuWidth, y + 40 + row * kRowHeight, "%6.02f", matrix.m[row][colum]);
 		}
 	}
 }
 
-void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) 
+void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label)
 {
 	Novice::ScreenPrintf(x, y, "%.02f", vector.x);
-	Novice::ScreenPrintf(x+ kColuWidth, y, "%.02f", vector.y);
-	Novice::ScreenPrintf(x + kColuWidth*2, y, "%.02f", vector.z);
+	Novice::ScreenPrintf(x + kColuWidth, y, "%.02f", vector.y);
+	Novice::ScreenPrintf(x + kColuWidth * 2, y, "%.02f", vector.z);
 	Novice::ScreenPrintf(x + kColuWidth * 3, y, "%s", label);
 }
 
@@ -128,8 +130,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		2.0f, 2.0f, 1.0f, 3.0f
 
 	};
-	
-	
+
+
 
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -152,11 +154,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		VectorScreenPrintf(0,0,transFormed, "transformed");
-		MatrixScreenPrintf(0,0,translateMatrix, "translateMatrix");
+		VectorScreenPrintf(0, 0, transFormed, "transformed");
+		MatrixScreenPrintf(0, 0, translateMatrix, "translateMatrix");
 		MatrixScreenPrintf(0, kRowHeight * 5, scaleMatrix, "scaleMatrix");
 
-	
+
 		///
 		/// ↑描画処理ここまで
 		///
