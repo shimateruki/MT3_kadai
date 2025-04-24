@@ -16,6 +16,7 @@ struct Matrix4x4
 	float m[4][4];
 };
 
+
 Matrix4x4 MakeRotateXMatix(float radian)
 {
 	Matrix4x4 result = {};
@@ -25,6 +26,7 @@ Matrix4x4 MakeRotateXMatix(float radian)
 	result.m[0][3] = 0.0f;
 
 	result.m[1][0] = 0.0f;
+
 	result.m[1][1] = cosf(radian);
 	result.m[1][2] = sinf(radian);
 	result.m[1][3] = 0.0f;
@@ -52,9 +54,11 @@ Matrix4x4 MakeRotateYMatix(float radian)
 	result.m[0][3] = 0.0f;
 
 	result.m[1][0] = 0.0f;
+
 	result.m[1][1] = 1.0f;
 	result.m[1][2] = 0.0f;
 	result.m[1][3] = 0.0f;
+
 
 	result.m[2][0] = sinf(radian);
 	result.m[2][1] = 0.0f;
@@ -76,26 +80,18 @@ Matrix4x4 MakeRotateZMatix(float radian)
 	result.m[0][1] = sinf(radian);
 	result.m[0][2] = 0.0f;
 	result.m[0][3] = 0.0f;
-
 	result.m[1][0] = -sinf(radian);
 	result.m[1][1] = cosf(radian);
-	result.m[1][2] = 0.0f;
-	result.m[1][3] = 0.0f;
-
 	result.m[2][0] = 0.0f;
 	result.m[2][1] = 0.0f;
 	result.m[2][2] = 1.0f;
 	result.m[2][3] = 0.0f;
-
-	result.m[3][0] = 0.0f;
-	result.m[3][1] = 0.0f;
-	result.m[3][2] = 0.0f;
+	result.m[3][0] = translate.x;
+	result.m[3][1] = translate.y;
+	result.m[3][2] = translate.z;
 	result.m[3][3] = 1.0f;
-
 	return result;
-}
-
-
+};
 
 //行列の積
 Matrix4x4 Multiply(const Matrix4x4& m1, const  Matrix4x4& m2)
@@ -113,7 +109,9 @@ Matrix4x4 Multiply(const Matrix4x4& m1, const  Matrix4x4& m2)
 	}
 	return result;
 
-}
+
+};
+
 
 static const int kRowHeight = 30;
 static const int kColuWidth = 80;
@@ -131,6 +129,7 @@ void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label
 }
 
 
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -142,12 +141,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = { 0 };
 
 	Vector3 rotate = { 0.4f, 1.43f, -0.8f };
-
-
-
-	/*Matrix4x4 */
-
-
 
 
 
@@ -167,6 +160,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+
 		
 		Matrix4x4 rotateXMatrix = MakeRotateXMatix(rotate.x);
 		Matrix4x4 rotateYMatrix = MakeRotateYMatix(rotate.y);
@@ -189,6 +183,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		MatrixScreenPrintf(0, kRowHeight * 5, rotateYMatrix, "rotateYMatrix");
 		MatrixScreenPrintf(0, kRowHeight * 5 * 2, rotateZMatrix, "rotateZMatrix");
 		MatrixScreenPrintf(0, kRowHeight * 5 * 3, rotateXYZMatrix, "rotateXMatrix");
+
+	
+
+		///
+		/// ↑描画処理ここまで
+		///
+
 
 
 			///
