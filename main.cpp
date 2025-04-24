@@ -1,6 +1,8 @@
 #include <Novice.h>
+#include <cmath>
 #include <cassert>
 #include <corecrt_math.h>
+
 const char kWindowTitle[] = "LC1C_09_シマ_テルキ_タイトル";
 struct Vector3
 {
@@ -109,6 +111,42 @@ void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label)
 }
 
 
+
+struct Matrix4x4
+{
+	float m[4][4];
+};
+
+struct Vector3
+{
+	float x;
+	float y;
+	float z;
+
+};
+
+//X軸回転行列
+Matrix4x4 MakeRotateXMatix(float radian)
+{
+
+}
+
+//Y軸回転行列
+
+Matrix4x4 MakeRotateYMatix(float radian)
+{
+
+}
+//Z軸回転行列
+Matrix4x4 MakeRotateZMatix(float radian)
+{
+
+}
+
+
+
+
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -118,18 +156,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
-	Vector3 translate = { 4.1f, 2.6f, 0.8f };
-	Vector3 scale = { 1.5f, 5.2f, 7.3f };
-	Vector3 point = { 2.3f, 3.8f, 1.4f };
-	Matrix4x4 translateMatrix = MakeTranslateMatirx(translate);
-	Matrix4x4 scaleMatrix = makeScaleMatrix(scale);
-	Matrix4x4 transFormMatrix = {
-		1.0f, 2.0f, 3.0f,4.0f,
-		3.0f, 1.0f, 1.0f, 2.0f,
-		1.0f, 4.0f, 2.0f, 3.0f,
-		2.0f, 2.0f, 1.0f, 3.0f
 
-	};
+	Vector3 rotate = { 0.4f, 1.43f, -0.8f };
+	Matrix4x4 rotateXMatrix = MakeRotateXMatix(rotate.x);
+	Matrix4x4 rotateYMatrix = MakeRotateYMatix(rotate.y);
+	Matrix4x4 rotateYMatrix = MakeRotateYMatix(rotate.z);
+
+
 
 
 
