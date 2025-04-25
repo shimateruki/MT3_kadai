@@ -17,106 +17,6 @@ struct Matrix4x4
 };
 
 
-Matrix4x4 MakeRotateXMatix(float radian)
-{
-	Matrix4x4 result = {};
-	result.m[0][0] = 1.0f;
-	result.m[0][1] = 0.0f;
-	result.m[0][2] = 0.0f;
-	result.m[0][3] = 0.0f;
-
-	result.m[1][0] = 0.0f;
-
-	result.m[1][1] = cosf(radian);
-	result.m[1][2] = sinf(radian);
-	result.m[1][3] = 0.0f;
-
-	result.m[2][0] = 0.0f;
-	result.m[2][1] = -sinf(radian);
-	result.m[2][2] = cosf(radian);
-	result.m[2][3] = 0.0f;
-
-	result.m[3][0] = 0.0f;
-	result.m[3][1] = 0.0f;
-	result.m[3][2] = 0.0f;
-	result.m[3][3] = 1.0f;
-
-	return result;
-}
-
-
-Matrix4x4 MakeRotateYMatix(float radian)
-{
-	Matrix4x4 result = {};
-	result.m[0][0] = cosf(radian);
-	result.m[0][1] = 0.0f;
-	result.m[0][2] = -sinf(radian);
-	result.m[0][3] = 0.0f;
-
-	result.m[1][0] = 0.0f;
-
-	result.m[1][1] = 1.0f;
-	result.m[1][2] = 0.0f;
-	result.m[1][3] = 0.0f;
-
-
-	result.m[2][0] = sinf(radian);
-	result.m[2][1] = 0.0f;
-	result.m[2][2] = cosf(radian);
-	result.m[2][3] = 0.0f;
-
-	result.m[3][0] = 0.0f;
-	result.m[3][1] = 0.0f;
-	result.m[3][2] = 0.0f;
-	result.m[3][3] = 1.0f;
-
-	return result;
-}
-
-Matrix4x4 MakeRotateZMatix(float radian)
-{
-	Matrix4x4 result = {};
-	result.m[0][0] = cosf(radian);
-	result.m[0][1] = sinf(radian);
-	result.m[0][2] = 0.0f;
-	result.m[0][3] = 0.0f;
-
-	result.m[1][0] = -sinf(radian);
-	result.m[1][1] = cosf(radian);
-	result.m[1][2] = 0.0f;
-	result.m[1][3] = 0.0f;
-
-	result.m[2][0] = 0.0f;
-	result.m[2][1] = 0.0f;
-	result.m[2][2] = 1.0f;
-	result.m[2][3] = 0.0f;
-
-	result.m[3][0] = 0.0f;
-	result.m[3][1] = 0.0f;
-	result.m[3][2] = 0.0f;
-	result.m[3][3] = 1.0f;
-
-	return result;
-}
-
-//行列の積
-Matrix4x4 Multiply(const Matrix4x4& m1, const  Matrix4x4& m2)
-{
-
-	Matrix4x4 result = {};
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] =
-				m1.m[i][0] * m2.m[0][j] +
-				m1.m[i][1] * m2.m[1][j] +
-				m1.m[i][2] * m2.m[2][j] +
-				m1.m[i][3] * m2.m[3][j];
-		}
-	}
-	return result;
-
-
-};
 
 
 static const int kRowHeight = 30;
@@ -146,8 +46,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
+	Vector3 scale = {1.2f,0.79f, -2.1f };
 	Vector3 rotate = { 0.4f, 1.43f, -0.8f };
-
+	Vector3 translate = {2.7f, -4.15f,1.57f };
+	
 
 
 
