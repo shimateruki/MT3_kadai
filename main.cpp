@@ -16,7 +16,23 @@ struct Matrix4x4
 	float m[4][4];
 };
 
+//透視投影行列
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float asepectRatio, float nearClip, float farClip)
+{
 
+}
+//正射影行列
+Matrix4x4 MakeOrthographicMatrix(float left, float top,  float right,
+	float bottom, float nesrClip, float farClip)
+{
+
+}
+//3　ビューボート返還行列
+
+Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxdepth)
+{
+
+}
 
 static const int kRowHeight = 30;
 static const int kColuWidth = 80;
@@ -65,7 +81,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		
+		Matrix4x4 orthographicMatrix = MakeOrthographicMatrix(-160.0f, 160.0f, 200.0f, 300.0f, 0.0f, 1000.0f);
+		Matrix4x4 perspectiveFovMatrix = MakePerspectiveFovMatrix(0.63f, 1.33f, 0.1f,1000.0f );
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(100.0f, 200.0f,600.0f, 300.0f, 0.0f, 1.0f );
 
 
 			///
@@ -76,7 +94,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			/// ↓描画処理ここから
 			///
 
-	
+		MatrixScreenPrintf(0, 0, orthographicMatrix, "orthographicMatrix");
+		MatrixScreenPrintf(0, kRowHeight*5, perspectiveFovMatrix, "perspectiveFovMatrix");
+		MatrixScreenPrintf(0, kRowHeight*10, viewportMatrix, "viewportMatrix");
 
 	
 	
