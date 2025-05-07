@@ -57,6 +57,14 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 	return result;
 }
 
+//クロス積
+Vector3 Cross(const Vector3& v1, const Vector3& v2)
+{
+
+}
+
+
+
 static const int kRowHeight = 30;
 static const int kColuWidth = 80;
 
@@ -83,7 +91,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
+	Vector3 v1 ={ 1.2f, 3.9f,2.5f };
+	Vector3 v2 = { 2.8f, 0.4f, -1.3f };
+	Vector3 cross = Cross( v1, v2 );
 
+	Vector3 rotate = {};
+	Vector3 transSalate = {};
 
 
 
@@ -104,10 +117,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		Matrix4x4 orthographicMatrix = MakeOrthographicMatrix(-160.0f, 160.0f, 200.0f, 300.0f, 0.0f, 1000.0f);
-		Matrix4x4 perspectiveFovMatrix = MakePerspectiveFovMatrix(0.63f, 1.33f, 0.1f,1000.0f );
-		Matrix4x4 viewportMatrix = MakeViewportMatrix(100.0f, 200.0f,600.0f, 300.0f, 0.0f, 1.0f );
-
+		Matrix4x4 worldMatrix;
 
 			///
 			/// ↑更新処理ここまで
@@ -116,10 +126,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			///
 			/// ↓描画処理ここから
 			///
-
-		MatrixScreenPrintf(0, 0, orthographicMatrix, "orthographicMatrix");
-		MatrixScreenPrintf(0, kRowHeight*5, perspectiveFovMatrix, "perspectiveFovMatrix");
-		MatrixScreenPrintf(0, kRowHeight*10, viewportMatrix, "viewportMatrix");
 
 	
 	
