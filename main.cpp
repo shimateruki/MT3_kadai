@@ -19,7 +19,7 @@ struct Matrix4x4
 //透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip)
 {
-	Matrix4x4 result{};
+	Matrix4x4 result= {};
 	float f = 1.0f / tanf(fovY / 2.0f);
 	result.m[0][0] = f / aspectRatio;
 	result.m[0][1] = 0.0f;
@@ -81,8 +81,8 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 	result.m[1][0] = 0.0f;
 	result.m[1][1] = -height / 2.0f; 
 	result.m[1][2] = 0.0f;
-	result.m[1][3] = 0.0f
-		;
+	result.m[1][3] = 0.0f;
+
 	result.m[2][0] = 0.0f;
 	result.m[2][1] = 0.0f;
 	result.m[2][2] = maxDepth - minDepth;
@@ -235,7 +235,7 @@ Vector3 TransForm(const Vector3& vector, const Matrix4x4& matrix)
 //クロス積
 Vector3 Cross(const Vector3& v1, const Vector3& v2)
 {
-	Vector3 result{};
+	Vector3 result = {};
 	result.x = v1.y * v2.z - v1.z * v2.y;
 	result.y = v1.z * v2.x - v1.x * v2.z;
 	result.z = v1.x * v2.y - v1.y * v2.x;
@@ -288,17 +288,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 v2 = { 2.8f, 0.4f, -1.3f };
 	Vector3 cross = Cross( v1, v2 );
 
-	Vector3 rotate = {1.0f, 1.0f, 1.0f};
-	Vector3 transSalate = {1.0f, 1.0f, 1.0f};
-	Vector3 cameraPosition = {100, 50};
+	Vector3 translate = { 0.1f, 0.1f, 0.1f };  // 位置
+	Vector3 rotate = { 0.1f, 0.1f, 0.1f };     // 回転角度（X,Y,Z）
+	/*float moveSpeed = 2.0f;*/               // 移動スピード
+	float rotateSpeed = 0.05f;            // 回転スピード（ラジアン）
+	Vector3 cameraPosition = {0, 0, -10};
 
 	
 
 	// 三角形のワールド座標
 	Vector3 kLocalvertices[3] = {
-		{0.0f, 0.5f, 0.0f},   // 上
+		{0.0f,   0.5f, 0.0f},   // 上
 		{-0.5f, -0.5f, 0.0f}, // 左下
-		{0.5f, -0.5f, 0.0f}   // 右下
+		{0.5f,	-0.5f, 0.0f}   // 右下
 	};
 
 
@@ -317,17 +319,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 		
-
-		//回転処理 wsキーで前後に　adキーで左右に動かすY回転をさせる
-		if (keys[DIK_W])
-		{
+// 前進（Wキー）: Y軸回転に従ってZ方向に進む
+		if (keys[DIK_W]) {
+			translate.z += rotateSpeed;
 			
-
 		}
+
+		// 後退（Sキー）
+		if (keys[DIK_S]) {
+			translate.z -= rotateSpeed;
+			
+		}
+
+	
+			
+		
+
+		
+			rotate.y += rotateSpeed;
+		
 
 
 		//行列の計算
-		Matrix4x4 worldMatrix = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, rotate, transSalate);
+		Matrix4x4 worldMatrix = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, rotate, translate);
 		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, cameraPosition);
 		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowsWidth)/float(kWindowsHeight),0.1f, 100.0f );
@@ -337,7 +351,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3 screenVertices[3];
 		for (int32_t i = 0; i < 3; ++i)
 		{
-			Vector3 ndsvertex =TransForm(kLocalvertices[i], worldViewProjectionMatrix); // NDC変換（0〜1範囲外かも）
+			Vector3 ndsvertex =TransForm(kLocalvertices[i], worldViewProjectionMatrix); 
 				screenVertices[i] = TransForm(ndsvertex, viewportMatrix);
  		}
 
