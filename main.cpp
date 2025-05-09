@@ -205,9 +205,20 @@ Vector3 Cross(const Vector3& v1, const Vector3& v2)
 }
 
 
-
 static const int kRowHeight = 30;
 static const int kColuWidth = 80;
+
+void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label)
+{
+	Novice::ScreenPrintf(x, y, "%.02f", vector.x);
+	Novice::ScreenPrintf(x + kColuWidth, y, "%.02f", vector.y);
+	Novice::ScreenPrintf(x + kColuWidth * 2, y, "%.02f", vector.z);
+	Novice::ScreenPrintf(x + kColuWidth * 3, y, "%s", label);
+}
+
+
+
+
 
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label)
 {
@@ -235,7 +246,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
-	Vector3 v1 ={ 1.2f, 3.9f,2.5f };
+	Vector3 v1 ={ 1.2f, -3.9f,2.5f };
 	Vector3 v2 = { 2.8f, 0.4f, -1.3f };
 	Vector3 cross = Cross( v1, v2 );
 
@@ -270,7 +281,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 
 		//回転処理 wsキーで前後に　adキーで左右に動かすY回転をさせる
+		if (keys[DIK_W])
+		{
+			
 
+		}
 
 
 		//行列の計算
@@ -280,6 +295,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowsWidth)/float(kWindowsHeight),0.1f, 100.0f );
 		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix,projectionMatrix ));
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
+		//SCreen空間への頂点を変換する
 		Vector3 screenVertices[3];
 		for (int32_t i = 0; i < 3; ++i)
 		{
@@ -299,7 +315,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::DrawTriangle(
 		int(screenVertices[0].x),int(screenVertices[0].y), int(screenVertices[1].x), int(screenVertices[1].y),
 			int(screenVertices[2].x), int(screenVertices[2].y),RED, kFillModeSolid );
-	
+		VectorScreenPrintf(0, 0,cross, "cross");
 		
 
 		///
