@@ -332,7 +332,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 	
-			
+		if (keys[DIK_D]) {
+			translate.x+= rotateSpeed;
+
+		}
+
+		if (keys[DIK_A]) {
+			translate.x -= rotateSpeed;
+
+		}
 		
 
 		
