@@ -288,8 +288,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 v2 = { 2.8f, 0.4f, -1.3f };
 	Vector3 cross = Cross( v1, v2 );
 
-	Vector3 translate = { 0.1f, 0.1f, 0.1f };  // 位置
-	Vector3 rotate = { 0.1f, 0.1f, 0.1f };     // 回転角度（X,Y,Z）
+	Vector3 translate = {  };  // 位置
+	Vector3 rotate = {  };     // 回転角度（X,Y,Z）
 	/*float moveSpeed = 2.0f;*/               // 移動スピード
 	float rotateSpeed = 0.05f;            // 回転スピード（ラジアン）
 	Vector3 cameraPosition = {0, 0, -10};
