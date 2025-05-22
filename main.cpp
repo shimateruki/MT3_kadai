@@ -222,7 +222,7 @@ Matrix4x4 Inverse(const Matrix4x4& m)
 }
 
 //3 座標変換
-Vector3 TransForm(const Vector3& vector, const Matrix4x4& matrix)
+Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix)
 {
 	Vector3 result = {};
 
@@ -250,44 +250,75 @@ Vector3 Cross(const Vector3& v1, const Vector3& v2)
 }
 
 
-void DrawSphere(const Sphere& sphere, const Matrix4x4& viewprojectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
-{
-	const uint32_t ksubdivision =//分割数 
-		const float klomEnemy = //経度分割一つ分の角度
-		const float kLatEnemy = //緯度分割一つ分の角度
-		//緯度の方向に分割-π/2~π/2
-		for (uint32_t latIndex = 0; latIndex < ksubdivision; ++latIndex)
-		{
-			float lat = -pi / 2.0f + kLatEnemy * latIndex;//現在の緯度
-			for (uint32_t lonIndex = 0; lonIndex < ksubdivision; ++lonIndex)
-			{
-				float lon = lonIndex * kLonEnemy;//現在の経度
-				//world座標系でのa.b.cを求める
-				Vector3 a, b, c;
-				//a,b,cをScreen座標系まで変換
-				//ab bcで線を引く
-				Novice::DrawLine();
-				Novice;;DrawLine();
 
-			}
+// 球体描画関数
+void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	const uint32_t kSubdivision = 16; // 分割数
+	const float pi = 3.14159265359f;
+	const float kLonStep = 2 * pi / float(kSubdivision);  // 経度ステップ
+	const float kLatStep = pi / float(kSubdivision);      // 緯度ステップ
+
+	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
+		float lat = -pi / 2.0f + kLatStep * latIndex;
+		float latNext = lat + kLatStep;
+
+		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
+			float lon = lonIndex * kLonStep;
+			float lonNext = lon + kLonStep;
+
+			// 球面座標をワールド座標に変換
+			Vector3 a = {
+				sphere.center.x + sphere.radius * cosf(lat) * cosf(lon),
+				sphere.center.y + sphere.radius * sinf(lat),
+				sphere.center.z + sphere.radius * cosf(lat) * sinf(lon)
+			};
+			Vector3 b = {
+				sphere.center.x + sphere.radius * cosf(latNext) * cosf(lon),
+				sphere.center.y + sphere.radius * sinf(latNext),
+				sphere.center.z + sphere.radius * cosf(latNext) * sinf(lon)
+			};
+			Vector3 c = {
+				sphere.center.x + sphere.radius * cosf(lat) * cosf(lonNext),
+				sphere.center.y + sphere.radius * sinf(lat),
+				sphere.center.z + sphere.radius * cosf(lat) * sinf(lonNext)
+			};
+
+			// ビュー行列 → ビューポート行列を通してスクリーン座標に変換
+			Vector3 screenA = Transform(Transform(a, viewProjectionMatrix), viewportMatrix);
+			Vector3 screenB = Transform(Transform(b, viewProjectionMatrix), viewportMatrix);
+			Vector3 screenC = Transform(Transform(c, viewProjectionMatrix), viewportMatrix);
+
+			Novice::DrawLine(int(screenA.x), int(screenA.y), int(screenB.x), int(screenB.y), color);
+			Novice::DrawLine(int(screenA.x), int(screenA.y), int(screenC.x), int(screenC.y), color);
 		}
+	}
 }
 
-void DrawGrid(const Matrix4x4& viewprojectionMatrix, const Matrix4x4 viedwportMatrix)
-{
+// グリッド描画関数
+void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
 	const float kGridHalfWidth = 2.0f;
-	const uint32_t ksubdvision = 10;
-	const float kGridEnemy = (kGridHalfWidth * 2.0f) / float(ksubdvision);
-	for (uint32_t index = 0; index < ksubdvision; ++index)
-	{
-		//上の情報を使ってワールド座標系上の始点と終点を求める
-		//スクリーン座標系まで返還をかける
-		//変換した座標を使って表示　色は薄色灰色(0xAAAAAFF),原点はkうろぐらいが良い
-		Novice::DrawLine();
-	}
-	for (uint32_t index = 0; index < ksubdvision; ++index)
-	{
-		//奥から手前が変わるだけ
+	const uint32_t kSubdivision = 10;
+	const float kGridStep = (kGridHalfWidth * 2.0f) / float(kSubdivision);
+	const uint32_t color = 0xAAAAAAFF;
+
+	for (uint32_t i = 0; i <= kSubdivision; ++i) {
+		float pos = -kGridHalfWidth + i * kGridStep;
+
+		// X軸に平行な線
+		Vector3 start = { -kGridHalfWidth, 0.0f, pos };
+		Vector3 end = { kGridHalfWidth, 0.0f, pos };
+
+		Vector3 screenStart = Transform(Transform(start, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenEnd = Transform(Transform(end, viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(int(screenStart.x), int(screenStart.y), int(screenEnd.x), int(screenEnd.y), color);
+
+		// Z軸に平行な線
+		Vector3 start2 = { pos, 0.0f, -kGridHalfWidth };
+		Vector3 end2 = { pos, 0.0f, kGridHalfWidth };
+
+		Vector3 screenStart2 = Transform(Transform(start2, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenEnd2 = Transform(Transform(end2, viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(int(screenStart2.x), int(screenStart2.y), int(screenEnd2.x), int(screenEnd2.y), color);
 	}
 }
 
@@ -337,10 +368,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = { 0.0f, 1.0f, -6.49f };
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
 
+	// 恒等行列（テスト用）
+	Matrix4x4 viewProjectionMatrix;
+	Matrix4x4 viewportMatrix ;
+
 	//球
 	Sphere sphere;
 	sphere.center = {};
 	sphere.radius = {};
+
+
 
 
 
@@ -377,6 +414,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat("sphereRadius", &sphere.radius, 0.01f);
 		ImGui::End();
 
+
+		// --- 描画処理 ---
+		DrawGrid(viewProjectionMatrix, viewportMatrix);
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, 0xFF0000FF); // 赤色
 
 		///
 		/// ↑描画処理ここまで
