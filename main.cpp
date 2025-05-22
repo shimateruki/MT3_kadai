@@ -367,15 +367,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//カメラ
 	Vector3 cameraTranslate = { 0.0f, 1.0f, -6.49f };
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
+	Vector3 cameraPosition = { 0.0f, 0.0f, 10.0f };
 
-	// 恒等行列（テスト用）
-	Matrix4x4 viewProjectionMatrix;
-	Matrix4x4 viewportMatrix ;
+
 
 	//球
 	Sphere sphere;
-	sphere.center = {};
-	sphere.radius = {};
+	sphere.center = {0, 0, 0};
+	sphere.radius = {1};
 
 
 
@@ -395,7 +394,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-
+			//行列の計算
+		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, cameraRotate, cameraTranslate);
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, cameraPosition);
+		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowsWidth) / float(kWindowsHeight), 0.1f, 100.0f);
+		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
+	
 
 			///
 			/// ↑更新処理ここまで
@@ -416,8 +422,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		// --- 描画処理 ---
-		DrawGrid(viewProjectionMatrix, viewportMatrix);
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, 0xFF0000FF); // 赤色
+		DrawGrid(worldViewProjectionMatrix, viewportMatrix);
+		DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, 0xFF0000FF); // 赤色
 
 		///
 		/// ↑描画処理ここまで
