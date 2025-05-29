@@ -9,14 +9,38 @@ const char kWindowTitle[] = "LC1C_09_シマ_テルキ_タイトル";
 
 
 
-Vector3 Project(const Vector3& v1, const Vector3& v2)
-{
+Vector3 Project(const Vector3& v1, const Vector3& v2) {
+	float v2LengthSq = v2.x * v2.x + v2.y * v2.y + v2.z * v2.z;
+	assert(v2LengthSq != 0.0f); // 0除算防止
 
+	float dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	float scalar = dot / v2LengthSq;
+
+	Vector3 result{
+		v2.x * scalar,
+		v2.y * scalar,
+		v2.z * scalar
+	};
+
+	return result;
 }
 
-Vector3 ClossetPoint(const Vector3& posint, const Segment& segment)
-{
+Vector3 ClossetPoint(const Vector3& point, const Segment& segment) {
+	Vector3 originToPoint{
+		point.x - segment.origin.x,
+		point.y - segment.origin.y,
+		point.z - segment.origin.z
+	};
 
+	Vector3 projected = Project(originToPoint, segment.diff);
+
+	Vector3 closest{
+		segment.origin.x + projected.x,
+		segment.origin.y + projected.y,
+		segment.origin.z + projected.z
+	};
+
+	return closest;
 }
 
 
@@ -66,7 +90,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
-	MatrixUtility* matrixUtility;
+	MatrixUtility* matrixUtility = nullptr;
 	//カメラ
 	Vector3 cameraTranslate = { 0.0f, 1.0f, -6.49f };
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
@@ -82,7 +106,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	//pointを線分に射影したベクトル　今回は正しく計算できているかを確認するた眼だけに使う
-	Vector3 project = Project(Subtract(point, segment.origin));
+	Vector3 project = Project( matrixUtility->Subtract(point, segment.origin), segment.diff);
 
 	//この値が線分上を表す
 	Vector3 clossetPoint = ClossetPoint(point, segment);
@@ -133,7 +157,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// --- 描画処理 ---
 		Vector3 start = matrixUtility->Transform(matrixUtility->Transform(segment.origin, worldViewProjectionMatrix), viewMatrix);
-		Vector3 end = matrixUtility->Transform(matrixUtility->Transform(Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
+		Vector3 end = matrixUtility->Transform(matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
 		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 		///
 		/// ↑描画処理ここまで

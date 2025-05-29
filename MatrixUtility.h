@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <Novice.h>
 #include <cmath>
 #include <cassert>
@@ -26,12 +26,12 @@ struct Segment {
 
 class MatrixUtility {
 public:
-	//“§‹“Š‰es—ñ
+	//é€è¦–æŠ•å½±è¡Œåˆ—
 	Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
-	//³Ë‰es—ñ
+	//æ­£å°„å½±è¡Œåˆ—
 	Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
 
-	//ƒrƒ…[ƒ{[ƒg•ÔŠÒs—ñ
+	//ãƒ“ãƒ¥ãƒ¼ãƒœãƒ¼ãƒˆè¿”é‚„è¡Œåˆ—
 	Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
 
 	Matrix4x4 MakeScaleMatrix(const Vector3& scale);
@@ -50,17 +50,20 @@ public:
 
 	Matrix4x4 Inverse(const Matrix4x4& m);
 
-	//3 À•W•ÏŠ·
+	//3 åº§æ¨™å¤‰æ›
 	Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
-	//ƒNƒƒXÏ
+	//ã‚¯ãƒ­ã‚¹ç©
 	Vector3 Cross(const Vector3& v1, const Vector3& v2);
 
 	void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
-	// ƒOƒŠƒbƒh•`‰æŠÖ”
+	// ã‚°ãƒªãƒƒãƒ‰æç”»é–¢æ•°
 	void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix);
 
+
+	Vector3 Add(const Vector3& v1, const Vector3& v2);
+	Vector3 Subtract(const Vector3& v1, const Vector3& v2);
 
 
 };

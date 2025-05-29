@@ -1,6 +1,6 @@
-#include "MatrixUtility.h"
+ï»¿#include "MatrixUtility.h"
 
-//“§‹“Š‰es—ñ
+//é€è¦–æŠ•å½±è¡Œåˆ—
 Matrix4x4  MatrixUtility::MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip)
 {
 	Matrix4x4 result = {};
@@ -26,7 +26,7 @@ Matrix4x4  MatrixUtility::MakePerspectiveFovMatrix(float fovY, float aspectRatio
 	result.m[3][3] = 0.0f;
 	return result;
 }
-//³Ë‰es—ñ
+//æ­£å°„å½±è¡Œåˆ—
 Matrix4x4  MatrixUtility::MakeOrthographicMatrix(float left, float top, float right,
 	float bottom, float nearClip, float farClip)
 {
@@ -52,7 +52,7 @@ Matrix4x4  MatrixUtility::MakeOrthographicMatrix(float left, float top, float ri
 	result.m[3][3] = 1.0f;
 	return result;
 }
-//3@ƒrƒ…[ƒ{[ƒg•ÔŠÒs—ñ
+//3ã€€ãƒ“ãƒ¥ãƒ¼ãƒœãƒ¼ãƒˆè¿”é‚„è¡Œåˆ—
 
 Matrix4x4  MatrixUtility::MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth)
 {
@@ -142,7 +142,7 @@ Matrix4x4  MatrixUtility::MakeAffineMatrix(const Vector3& scale, const Vector3& 
 	return worldMatrix;
 }
 
-//‹ts—ñ
+//é€†è¡Œåˆ—
 Matrix4x4  MatrixUtility::Inverse(const Matrix4x4& m)
 {
 	Matrix4x4 result = {};
@@ -163,33 +163,33 @@ Matrix4x4  MatrixUtility::Inverse(const Matrix4x4& m)
 		- a12 * a23 * a34 * a41 - a13 * a24 * a32 * a41 - a14 * a22 * a33 * a41
 		+ a14 * a23 * a32 * a41 + a13 * a22 * a34 * a41 + a12 * a24 * a33 * a41;
 	if (det == 0.0f) {
-		// ‹ts—ñ‚ª‘¶İ‚µ‚È‚¢is—ñ®‚ª0j
+		// é€†è¡Œåˆ—ãŒå­˜åœ¨ã—ãªã„ï¼ˆè¡Œåˆ—å¼ãŒ0ï¼‰
 		return result;
 	}
 
 	float invDet = 1.0f / det;
 
-	// ˆÈ‰ºAŠe—v‘f‚É‘Î‰‚·‚é—]ˆöq‚ğè“®ŒvZ‚µ‚Ä‘ã“üi“]’u‚ ‚èj
+	// ä»¥ä¸‹ã€å„è¦ç´ ã«å¯¾å¿œã™ã‚‹ä½™å› å­ã‚’æ‰‹å‹•è¨ˆç®—ã—ã¦ä»£å…¥ï¼ˆè»¢ç½®ã‚ã‚Šï¼‰
 
-	// 1s–Ú
+	// 1è¡Œç›®
 	result.m[0][0] = (a22 * (a33 * a44 - a34 * a43) - a23 * (a32 * a44 - a34 * a42) + a24 * (a32 * a43 - a33 * a42)) * invDet;
 	result.m[0][1] = -(a12 * (a33 * a44 - a34 * a43) - a13 * (a32 * a44 - a34 * a42) + a14 * (a32 * a43 - a33 * a42)) * invDet;
 	result.m[0][2] = (a12 * (a23 * a44 - a24 * a43) - a13 * (a22 * a44 - a24 * a42) + a14 * (a22 * a43 - a23 * a42)) * invDet;
 	result.m[0][3] = -(a12 * (a23 * a34 - a24 * a33) - a13 * (a22 * a34 - a24 * a32) + a14 * (a22 * a33 - a23 * a32)) * invDet;
 
-	// 2s–Ú
+	// 2è¡Œç›®
 	result.m[1][0] = -(a21 * (a33 * a44 - a34 * a43) - a23 * (a31 * a44 - a34 * a41) + a24 * (a31 * a43 - a33 * a41)) * invDet;
 	result.m[1][1] = (a11 * (a33 * a44 - a34 * a43) - a13 * (a31 * a44 - a34 * a41) + a14 * (a31 * a43 - a33 * a41)) * invDet;
 	result.m[1][2] = -(a11 * (a23 * a44 - a24 * a43) - a13 * (a21 * a44 - a24 * a41) + a14 * (a21 * a43 - a23 * a41)) * invDet;
 	result.m[1][3] = (a11 * (a23 * a34 - a24 * a33) - a13 * (a21 * a34 - a24 * a31) + a14 * (a21 * a33 - a23 * a31)) * invDet;
 
-	// 3s–Ú
+	// 3è¡Œç›®
 	result.m[2][0] = (a21 * (a32 * a44 - a34 * a42) - a22 * (a31 * a44 - a34 * a41) + a24 * (a31 * a42 - a32 * a41)) * invDet;
 	result.m[2][1] = -(a11 * (a32 * a44 - a34 * a42) - a12 * (a31 * a44 - a34 * a41) + a14 * (a31 * a42 - a32 * a41)) * invDet;
 	result.m[2][2] = (a11 * (a22 * a44 - a24 * a42) - a12 * (a21 * a44 - a24 * a41) + a14 * (a21 * a42 - a22 * a41)) * invDet;
 	result.m[2][3] = -(a11 * (a22 * a34 - a24 * a32) - a12 * (a21 * a34 - a24 * a31) + a14 * (a21 * a32 - a22 * a31)) * invDet;
 
-	// 4s–Ú
+	// 4è¡Œç›®
 	result.m[3][0] = -(a21 * (a32 * a43 - a33 * a42) - a22 * (a31 * a43 - a33 * a41) + a23 * (a31 * a42 - a32 * a41)) * invDet;
 	result.m[3][1] = (a11 * (a32 * a43 - a33 * a42) - a12 * (a31 * a43 - a33 * a41) + a13 * (a31 * a42 - a32 * a41)) * invDet;
 	result.m[3][2] = -(a11 * (a22 * a43 - a23 * a42) - a12 * (a21 * a43 - a23 * a41) + a13 * (a21 * a42 - a22 * a41)) * invDet;
@@ -198,7 +198,7 @@ Matrix4x4  MatrixUtility::Inverse(const Matrix4x4& m)
 	return result;
 }
 
-//3 À•W•ÏŠ·
+//3 åº§æ¨™å¤‰æ›
 Vector3  MatrixUtility::Transform(const Vector3& vector, const Matrix4x4& matrix)
 {
 	Vector3 result = {};
@@ -216,7 +216,7 @@ Vector3  MatrixUtility::Transform(const Vector3& vector, const Matrix4x4& matrix
 	return result;
 }
 
-//ƒNƒƒXÏ
+//ã‚¯ãƒ­ã‚¹ç©
 Vector3  MatrixUtility::Cross(const Vector3& v1, const Vector3& v2)
 {
 	Vector3 result = {};
@@ -228,12 +228,12 @@ Vector3  MatrixUtility::Cross(const Vector3& v1, const Vector3& v2)
 
 
 
-// ‹…‘Ì•`‰æŠÖ”
+// çƒä½“æç”»é–¢æ•°
 void  MatrixUtility::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	const uint32_t kSubdivision = 16; // •ªŠ„”
+	const uint32_t kSubdivision = 16; // åˆ†å‰²æ•°
 	const float pi = 3.14159265359f;
-	const float kLonStep = 2 * pi / float(kSubdivision);  // Œo“xƒXƒeƒbƒv
-	const float kLatStep = pi / float(kSubdivision);      // ˆÜ“xƒXƒeƒbƒv
+	const float kLonStep = 2 * pi / float(kSubdivision);  // çµŒåº¦ã‚¹ãƒ†ãƒƒãƒ—
+	const float kLatStep = pi / float(kSubdivision);      // ç·¯åº¦ã‚¹ãƒ†ãƒƒãƒ—
 
 	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
 		float lat = -pi / 2.0f + kLatStep * latIndex;
@@ -243,7 +243,7 @@ void  MatrixUtility::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProje
 			float lon = lonIndex * kLonStep;
 			float lonNext = lon + kLonStep;
 
-			// ‹…–ÊÀ•W‚ğƒ[ƒ‹ƒhÀ•W‚É•ÏŠ·
+			// çƒé¢åº§æ¨™ã‚’ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã«å¤‰æ›
 			Vector3 a = {
 				sphere.center.x + sphere.radius * cosf(lat) * cosf(lon),
 				sphere.center.y + sphere.radius * sinf(lat),
@@ -260,7 +260,7 @@ void  MatrixUtility::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProje
 				sphere.center.z + sphere.radius * cosf(lat) * sinf(lonNext)
 			};
 
-			// ƒrƒ…[s—ñ ¨ ƒrƒ…[ƒ|[ƒgs—ñ‚ğ’Ê‚µ‚ÄƒXƒNƒŠ[ƒ“À•W‚É•ÏŠ·
+			// ãƒ“ãƒ¥ãƒ¼è¡Œåˆ— â†’ ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆè¡Œåˆ—ã‚’é€šã—ã¦ã‚¹ã‚¯ãƒªãƒ¼ãƒ³åº§æ¨™ã«å¤‰æ›
 			Vector3 screenA = Transform(Transform(a, viewProjectionMatrix), viewportMatrix);
 			Vector3 screenB = Transform(Transform(b, viewProjectionMatrix), viewportMatrix);
 			Vector3 screenC = Transform(Transform(c, viewProjectionMatrix), viewportMatrix);
@@ -271,7 +271,7 @@ void  MatrixUtility::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProje
 	}
 }
 
-// ƒOƒŠƒbƒh•`‰æŠÖ”
+// ã‚°ãƒªãƒƒãƒ‰æç”»é–¢æ•°
 void  MatrixUtility::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
 	const float kGridHalfWidth = 2.0f;
 	const uint32_t kSubdivision = 10;
@@ -281,7 +281,7 @@ void  MatrixUtility::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matri
 	for (uint32_t i = 0; i <= kSubdivision; ++i) {
 		float pos = -kGridHalfWidth + i * kGridStep;
 
-		// X²‚É•½s‚Èü
+		// Xè»¸ã«å¹³è¡Œãªç·š
 		Vector3 start = { -kGridHalfWidth, 0.0f, pos };
 		Vector3 end = { kGridHalfWidth, 0.0f, pos };
 
@@ -289,7 +289,7 @@ void  MatrixUtility::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matri
 		Vector3 screenEnd = Transform(Transform(end, viewProjectionMatrix), viewportMatrix);
 		Novice::DrawLine(int(screenStart.x), int(screenStart.y), int(screenEnd.x), int(screenEnd.y), color);
 
-		// Z²‚É•½s‚Èü
+		// Zè»¸ã«å¹³è¡Œãªç·š
 		Vector3 start2 = { pos, 0.0f, -kGridHalfWidth };
 		Vector3 end2 = { pos, 0.0f, kGridHalfWidth };
 
@@ -297,4 +297,20 @@ void  MatrixUtility::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matri
 		Vector3 screenEnd2 = Transform(Transform(end2, viewProjectionMatrix), viewportMatrix);
 		Novice::DrawLine(int(screenStart2.x), int(screenStart2.y), int(screenEnd2.x), int(screenEnd2.y), color);
 	}
+}
+
+Vector3 MatrixUtility::Add(const Vector3& v1, const Vector3& v2) {
+	Vector3 result;
+	result.x = v1.x + v2.x;
+	result.y = v1.y + v2.y;
+	result.z = v1.z + v2.z;
+	return result;
+}
+
+Vector3 MatrixUtility::Subtract(const Vector3& v1, const Vector3& v2) {
+	Vector3 result;
+	result.x = v1.x - v2.x;
+	result.y = v1.y - v2.y;
+	result.z = v1.z - v2.z;
+	return result;
 }
