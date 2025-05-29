@@ -148,12 +148,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//imGit処理
 		ImGui::Begin("Window");
+		ImGui::InputFloat3("Point", &point.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("Sement origin", &segment.origin.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("segment diff", &segment.diff.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		ImGui::End();
 
 		//点の描画
 		matrixUtility->DrawSphere(pointShere, worldViewProjectionMatrix, viewMatrix, RED);
 		matrixUtility->DrawSphere(closePointSphere, worldViewProjectionMatrix, viewportMatrix, BLACK);
+		matrixUtility->DrawGrid(worldViewProjectionMatrix, viewportMatrix);
+	
 
 		// --- 描画処理 ---
 		Vector3 start = matrixUtility->Transform(matrixUtility->Transform(segment.origin, worldViewProjectionMatrix), viewMatrix);
