@@ -299,26 +299,30 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 	const float kGridHalfWidth = 2.0f;
 	const uint32_t kSubdivision = 10;
 	const float kGridStep = (kGridHalfWidth * 2.0f) / float(kSubdivision);
-	const uint32_t color = 0xAAAAAAFF;
+	const uint32_t color1 = 0xAAAAAAFF; // 通常線の色（灰色）
+	const uint32_t color2 = BLACK;      // 中心線の色（黒）
 
 	for (uint32_t i = 0; i <= kSubdivision; ++i) {
 		float pos = -kGridHalfWidth + i * kGridStep;
 
-		// X軸に平行な線
-		Vector3 start = { -kGridHalfWidth, 0.0f, pos };
-		Vector3 end = { kGridHalfWidth, 0.0f, pos };
+		// 中心線かどうか判定
+		bool isCenter = (abs(pos) < 0.001f);
 
-		Vector3 screenStart = Transform(Transform(start, viewProjectionMatrix), viewportMatrix);
-		Vector3 screenEnd = Transform(Transform(end, viewProjectionMatrix), viewportMatrix);
-		Novice::DrawLine(int(screenStart.x), int(screenStart.y), int(screenEnd.x), int(screenEnd.y), color);
+		// X軸に平行な線（Z方向に位置する）
+		Vector3 startX = { -kGridHalfWidth, 0.0f, pos };
+		Vector3 endX = { kGridHalfWidth, 0.0f, pos };
+		Vector3 screenStartX = Transform(Transform(startX, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenEndX = Transform(Transform(endX, viewProjectionMatrix), viewportMatrix);
+		uint32_t colorX = isCenter ? color2 : color1;
+		Novice::DrawLine(int(screenStartX.x), int(screenStartX.y), int(screenEndX.x), int(screenEndX.y), colorX);
 
-		// Z軸に平行な線
-		Vector3 start2 = { pos, 0.0f, -kGridHalfWidth };
-		Vector3 end2 = { pos, 0.0f, kGridHalfWidth };
-
-		Vector3 screenStart2 = Transform(Transform(start2, viewProjectionMatrix), viewportMatrix);
-		Vector3 screenEnd2 = Transform(Transform(end2, viewProjectionMatrix), viewportMatrix);
-		Novice::DrawLine(int(screenStart2.x), int(screenStart2.y), int(screenEnd2.x), int(screenEnd2.y), color);
+		// Z軸に平行な線（X方向に位置する）
+		Vector3 startZ = { pos, 0.0f, -kGridHalfWidth };
+		Vector3 endZ = { pos, 0.0f, kGridHalfWidth };
+		Vector3 screenStartZ = Transform(Transform(startZ, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenEndZ = Transform(Transform(endZ, viewProjectionMatrix), viewportMatrix);
+		uint32_t colorZ = isCenter ? color2 : color1;
+		Novice::DrawLine(int(screenStartZ.x), int(screenStartZ.y), int(screenEndZ.x), int(screenEndZ.y), colorZ);
 	}
 }
 
