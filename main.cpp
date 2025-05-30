@@ -90,11 +90,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
-	MatrixUtility* matrixUtility = nullptr;
+	MatrixUtility* matrixUtility = new MatrixUtility();
 	//カメラ
 	Vector3 cameraTranslate = { 0.0f, 1.0f, -6.49f };
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
-	Vector3 cameraPosition = { 0.0f, 0.0f, 10.0f };
+	Vector3 cameraPosition = { 0.0f, 1.0f, 5.0f };
 
 
 
@@ -106,14 +106,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	//pointを線分に射影したベクトル　今回は正しく計算できているかを確認するた眼だけに使う
-	Vector3 project = Project( matrixUtility->Subtract(point, segment.origin), segment.diff);
+	Vector3 project = Project(matrixUtility->Subtract(point, segment.origin), segment.diff);
 
 	//この値が線分上を表す
 	Vector3 clossetPoint = ClossetPoint(point, segment);
 
-
 	Sphere pointShere{ point, 0.01f };//1cmの球を描画
 	Sphere closePointSphere{ clossetPoint, 0.01f };
+
+
+	closePointSphere.center = clossetPoint;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -129,12 +131,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 			//行列の計算
-		Matrix4x4 worldMatrix =matrixUtility-> MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, cameraRotate, cameraTranslate);
-		Matrix4x4 cameraMatrix = matrixUtility->MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, cameraPosition);
+			Matrix4x4 worldMatrix = matrixUtility->MakeAffineMatrix(
+				{ 1.0f, 1.0f, 1.0f }, cameraRotate, cameraTranslate);
+
+		Matrix4x4 cameraMatrix = matrixUtility->MakeAffineMatrix(
+			{ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, cameraPosition);
+
 		Matrix4x4 viewMatrix = matrixUtility->Inverse(cameraMatrix);
-		Matrix4x4 projectionMatrix = matrixUtility-> MakePerspectiveFovMatrix(0.45f, float(kWindowsWidth) / float(kWindowsHeight), 0.1f, 100.0f);
-		Matrix4x4 worldViewProjectionMatrix = matrixUtility-> Multiply(worldMatrix, matrixUtility->Multiply(viewMatrix, projectionMatrix));
-		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
+
+		Matrix4x4 projectionMatrix = matrixUtility->MakePerspectiveFovMatrix(
+			0.45f, float(kWindowsWidth) / float(kWindowsHeight), 0.1f, 100.0f);
+
+		
+		Matrix4x4 viewProjectionMatrix = matrixUtility->Multiply(viewMatrix, projectionMatrix);
+
+		Matrix4x4 worldViewProjectionMatrix = matrixUtility->Multiply(worldMatrix, viewProjectionMatrix);
+
+		Matrix4x4 viewportMatrix = matrixUtility->MakeViewportMatrix(
+			0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 	
 
 			///
@@ -155,14 +169,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::End();
 
 		//点の描画
-		matrixUtility->DrawSphere(pointShere, worldViewProjectionMatrix, viewMatrix, RED);
-		matrixUtility->DrawSphere(closePointSphere, worldViewProjectionMatrix, viewportMatrix, BLACK);
-		matrixUtility->DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 	
+		matrixUtility->DrawGrid(worldViewProjectionMatrix, viewportMatrix);
+		matrixUtility->DrawSphere(pointShere, worldViewProjectionMatrix, viewportMatrix, RED);
+		matrixUtility->DrawSphere(closePointSphere, worldViewProjectionMatrix, viewportMatrix, BLACK);
 
 		// --- 描画処理 ---
-		Vector3 start = matrixUtility->Transform(matrixUtility->Transform(segment.origin, worldViewProjectionMatrix), viewMatrix);
-		Vector3 end = matrixUtility->Transform(matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
+	// 線分の始点と終点をスクリーン座標に変換
+		Vector3 start = matrixUtility->Transform(segment.origin, worldViewProjectionMatrix);
+		start = matrixUtility->Transform(start, viewportMatrix);
+
+		Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), worldViewProjectionMatrix);
+		end = matrixUtility->Transform(end, viewportMatrix);
+
+		// スクリーン座標で線分を描画
 		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 		///
 		/// ↑描画処理ここまで
