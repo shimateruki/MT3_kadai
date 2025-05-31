@@ -10,24 +10,6 @@ const char kWindowTitle[] = "LC1C_09_シマ_テルキ_タイトル";
 
 
 
-float Length(const Vector3& v) {
-	
-	return sqrtf(v.x * v.x + v.y * v.y+v.z*v.z);
-}
-
-bool isCollision(const Sphere& sphere, const Plane& s2)
-{
-	float distance = Length(s2.normal - sphere.center);
-	if (distance <= sphere.radius + s2.distance)
-	{
-		return true;
-	}
-	return false;
-}
-
-
-
-
 
 static const int kRowHeight = 30;
 static const int kColuWidth = 80;
@@ -81,6 +63,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sphere.center = { 0, 0, 0 };
 	sphere.radius = { 1 };
 	sphere.color = WHITE;
+	Plane plane;
+	plane.normal = { 0,1.0f,0 };
+	plane.distance = 0.5f;
 
 	
 
@@ -113,7 +98,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-	
+		if (matrixUtility->IsCollision(sphere, plane))
+		{
+			sphere.color = RED;
+		}
+		else
+		{
+			sphere.color = WHITE;
+		}
 
 			///
 			/// ↑更新処理ここまで
@@ -134,6 +126,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		ImGui::DragFloat3("Sphere Center", &sphere.center.x, 0.01f); 
 		ImGui::DragFloat("Sphere Radius", &sphere.radius, 0.01f);   
+		ImGui::DragFloat3("plane.normal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat("plane.distance", &plane.distance, 0.01f);
 
 		  
 		ImGui::End();
@@ -141,13 +135,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
 
 		// --- 描画処理 ---
-		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);
-		for (int i = 0; i < 2; i++)
-		{
-		
-			matrixUtility->DrawSphere(sphere[i], viewProjectionMatrix, viewportMatrix, sphere[i].color); // 赤色
+		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
+		matrixUtility->DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color); 
+		matrixUtility->DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 
-		}
+		
 	
 	
 		///
