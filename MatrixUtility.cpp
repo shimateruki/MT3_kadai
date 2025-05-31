@@ -204,6 +204,7 @@ Matrix4x4  MatrixUtility::Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return result;
 }
 
+
 Matrix4x4  MatrixUtility::MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
 	Matrix4x4 scaleMatrix = MakeScaleMatrix(scale);
 	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
@@ -215,6 +216,14 @@ Matrix4x4  MatrixUtility::MakeAffineMatrix(const Vector3& scale, const Vector3& 
 	Matrix4x4 worldMatrix = Multiply(Multiply(scaleMatrix, rotateMatrix), translateMatrix);
 
 	return worldMatrix;
+}
+
+Vector3 MatrixUtility::Multiply(const Vector3& v, float scalar) {
+    Vector3 result;
+    result.x = v.x * scalar;
+    result.y = v.y * scalar;
+    result.z = v.z * scalar;
+    return result;
 }
 
 //逆行列
@@ -429,4 +438,108 @@ Vector3 MatrixUtility::ClossetPoint(const Vector3& point, const Segment& segment
 	};
 
 	return closest;
+}
+
+float Length(const Vector3& v) {
+
+	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+float MatrixUtility::Dot(const Vector3& v1, const Vector3& v2) {
+	// 各成分を掛け合わせて合計する
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+bool MatrixUtility::IsCollision(const Sphere& sphere, const Plane& plane)
+{
+	
+	float signedDistance = Dot(sphere.center, plane.normal) - plane.distance;
+
+
+	if (fabsf(signedDistance) <= sphere.radius) 
+	{
+		return true; // 衝突している
+	}
+	return false; // 衝突していない
+}
+
+
+
+
+Vector3 MatrixUtility::Perpendicular(const Vector3& vector)
+{
+	if (vector.x != 0.0f || vector.y != 0.0f)
+	{
+		return{ -vector.y, vector.x, 0.0f };
+	}
+	return { 0.0f, -vector.z, vector.y };
+}
+
+// Vector3 を正規化する関数
+Vector3 MatrixUtility::Normalize(const Vector3& v) {
+	Vector3 result = v; 
+
+	float len = Length(v);
+
+
+	if (len != 0.0f) { 
+		result.x /= len;
+		result.y /= len;
+		result.z /= len;
+	}
+	return result;
+}
+
+void MatrixUtility::DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
+{
+	// 平面の中心点 (原点に最も近い点) を計算
+	Vector3 center = Multiply(plane.normal, plane.distance);
+
+	Vector3 perpendDiculor[4]; // 変数名はそのまま
+	// perpendDiculor[0] を U軸方向として利用
+	perpendDiculor[0] = Normalize(Perpendicular(plane.normal));
+
+	// perpendDiculor[1] は元の定義のまま。今回は直接四隅の計算には使わない
+	perpendDiculor[1] = { -perpendDiculor[0].x, -perpendDiculor[0].y, perpendDiculor[0].z };
+
+	// perpendDiculor[2] を V軸方向として利用 (perpendDiculor[0]と法線の外積)
+	perpendDiculor[2] = Normalize(Cross(plane.normal, perpendDiculor[0]));
+
+	// perpendDiculor[3] は元の定義のまま。今回は直接四隅の計算には使わない
+	perpendDiculor[3] = { -perpendDiculor[2].x, -perpendDiculor[2].y, -perpendDiculor[2].z };
+
+	// 描画する平面のサイズを決定する定数 (半分の幅/高さ)
+	const float kPlaneExtent = 2.0f; // この値を調整して、描画される平面のサイズを変更
+
+	Vector3 points[4]; // 最終的なスクリーン座標を格納する配列 (変数名そのまま)
+
+	// ここで points[0]からpoints[3]に四隅の点を計算し直す
+	// 従来のループは削除し、四隅の点を明示的に割り当てる
+
+	// point[0]: 中心から (+U軸方向 +V軸方向) に進んだ点 (右上)
+	Vector3 p0_world = Add(center, Add(Multiply(perpendDiculor[0], kPlaneExtent), Multiply(perpendDiculor[2], kPlaneExtent)));
+	points[0] = Transform(Transform(p0_world, viewProjectionMatrix), viewportMatrix);
+
+	// point[1]: 中心から (-U軸方向 +V軸方向) に進んだ点 (左上)
+	Vector3 p1_world = Add(center, Add(Multiply(perpendDiculor[0], -kPlaneExtent), Multiply(perpendDiculor[2], kPlaneExtent)));
+	points[1] = Transform(Transform(p1_world, viewProjectionMatrix), viewportMatrix);
+
+	// point[2]: 中心から (-U軸方向 -V軸方向) に進んだ点 (左下)
+	Vector3 p2_world = Add(center, Add(Multiply(perpendDiculor[0], -kPlaneExtent), Multiply(perpendDiculor[2], -kPlaneExtent)));
+	points[2] = Transform(Transform(p2_world, viewProjectionMatrix), viewportMatrix);
+
+	// point[3]: 中心から (+U軸方向 -V軸方向) に進んだ点 (右下)
+	Vector3 p3_world = Add(center, Add(Multiply(perpendDiculor[0], kPlaneExtent), Multiply(perpendDiculor[2], -kPlaneExtent)));
+	points[3] = Transform(Transform(p3_world, viewProjectionMatrix), viewportMatrix);
+
+	// 計算した点を順番に結んで四角形を描画する
+	// point[0] (右上) -> point[1] (左上) -> point[2] (左下) -> point[3] (右下) -> point[0] (右上)
+	Novice::DrawLine(static_cast<int>(points[0].x), static_cast<int>(points[0].y),
+		static_cast<int>(points[1].x), static_cast<int>(points[1].y), color);
+	Novice::DrawLine(static_cast<int>(points[1].x), static_cast<int>(points[1].y),
+		static_cast<int>(points[2].x), static_cast<int>(points[2].y), color);
+	Novice::DrawLine(static_cast<int>(points[2].x), static_cast<int>(points[2].y),
+		static_cast<int>(points[3].x), static_cast<int>(points[3].y), color);
+	Novice::DrawLine(static_cast<int>(points[3].x), static_cast<int>(points[3].y),
+		static_cast<int>(points[0].x), static_cast<int>(points[0].y), color);
 }

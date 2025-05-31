@@ -10,22 +10,6 @@ const char kWindowTitle[] = "LC1C_09_シマ_テルキ_タイトル";
 
 
 
-float Length(const Vector3& v) {
-	
-	return sqrtf(v.x * v.x + v.y * v.y+v.z*v.z);
-}
-
-bool isCollision(const Sphere& s1, const Sphere& s2)
-{
-	float distance = Length(s2.center - s1.center);
-	if (distance <= s1.radius + s2.radius)
-	{
-		return true;
-	}
-	return false;
-}
-
-
 
 static const int kRowHeight = 30;
 static const int kColuWidth = 80;
@@ -75,14 +59,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
 	Vector3 cameraPosition = { 0.0f, 1.0f, 5.0f };
 
-	Sphere sphere[2];
-	sphere[0].center = { 0, 0, 0 };
-	sphere[0].radius = { 1 };
-	sphere[0].color = WHITE;
+	Sphere sphere;
+	sphere.center = { 0, 0, 0 };
+	sphere.radius = { 1 };
+	sphere.color = WHITE;
+	Plane plane;
+	plane.normal = { 0,1.0f,0 };
+	plane.distance = 0.5f;
 
-	sphere[1].center = { 1.5f, 0, 1.5f };
-	sphere[1].radius = { 1 };
-	sphere[1].color = WHITE;
+	
 
 
 
@@ -113,19 +98,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		if (isCollision(sphere[0], sphere[1]))
+		if (matrixUtility->IsCollision(sphere, plane))
 		{
-			for (int i = 0; i < 2; i++)
-			{
-				sphere[i].color = RED;
-			}
+			sphere.color = RED;
 		}
 		else
 		{
-			for (int i = 0; i < 2; i++)
-			{
-				sphere[i].color = WHITE;
-			}
+			sphere.color = WHITE;
 		}
 
 			///
@@ -144,25 +123,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("cameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
 		
-		// 1つ目の球体
-		ImGui::DragFloat3("Sphere[0] Center", &sphere[0].center.x, 0.01f); 
-		ImGui::DragFloat("Sphere[0] Radius", &sphere[0].radius, 0.01f);   
 
-		// 2つ目の球体
-		ImGui::DragFloat3("Sphere[1] Center", &sphere[1].center.x, 0.01f); 
-		ImGui::DragFloat("Sphere[1] Radius", &sphere[1].radius, 0.01f);   
+		ImGui::DragFloat3("Sphere Center", &sphere.center.x, 0.01f); 
+		ImGui::DragFloat("Sphere Radius", &sphere.radius, 0.01f);   
+		ImGui::DragFloat3("plane.normal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat("plane.distance", &plane.distance, 0.01f);
+
+		  
 		ImGui::End();
 
 	
 
 		// --- 描画処理 ---
-		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);
-		for (int i = 0; i < 2; i++)
-		{
-		
-			matrixUtility->DrawSphere(sphere[i], viewProjectionMatrix, viewportMatrix, sphere[i].color); // 赤色
+		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
+		matrixUtility->DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color); 
+		matrixUtility->DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 
-		}
+		
 	
 	
 		///

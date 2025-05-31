@@ -31,6 +31,12 @@ struct Segment {
 	Vector3 diff;
 };
 
+struct  Plane
+{
+	Vector3 normal;//法線
+	float distance;//距離
+};
+
 
 
 Vector3 operator+(const Vector3& objA, const Vector3& objB);
@@ -65,7 +71,13 @@ public:
 
 	Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
 
+	
 	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+
+	Vector3 Multiply(const Vector3& v, float scalar);
+
+	
+
 
 	Matrix4x4 Inverse(const Matrix4x4& m);
 
@@ -87,6 +99,16 @@ public:
 	Vector3 Project(const Vector3& v1, const Vector3& v2);
 
 	Vector3 ClossetPoint(const Vector3& point, const Segment& segment);
+
+	float Dot(const Vector3& v1, const Vector3& v2);
+
+	bool IsCollision(const Sphere& sphere, const Plane& s2);
+
+	Vector3 Perpendicular(const Vector3& vector);
+
+	Vector3 Normalize(const Vector3& v);
+
+	void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
 
 };
