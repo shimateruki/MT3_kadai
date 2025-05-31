@@ -29,6 +29,7 @@ struct Sphere {
 struct Segment {
 	Vector3 origin;
 	Vector3 diff;
+	unsigned int color;
 };
 
 struct  Plane
@@ -103,6 +104,8 @@ public:
 	float Dot(const Vector3& v1, const Vector3& v2);
 
 	bool IsCollision(const Sphere& sphere, const Plane& s2);
+
+	bool IsCollision(const Segment& segment, const Plane& plane);
 
 	Vector3 Perpendicular(const Vector3& vector);
 

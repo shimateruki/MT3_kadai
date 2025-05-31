@@ -59,16 +59,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
 	Vector3 cameraPosition = { 0.0f, 1.0f, 5.0f };
 
-	Sphere sphere;
-	sphere.center = { 0, 0, 0 };
-	sphere.radius = { 1 };
-	sphere.color = WHITE;
 	Plane plane;
 	plane.normal = { 0,1.0f,0 };
 	plane.distance = 0.5f;
 
 	
 
+	Segment segment{ {-2.0f, -1.0f, 0.0f}, {2.0f, 1.0f,1.0f }, WHITE };
 
 
 
@@ -98,13 +95,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		if (matrixUtility->IsCollision(sphere, plane))
+		if (matrixUtility->IsCollision(segment, plane))
 		{
-			sphere.color = RED;
+			segment.color = RED;
 		}
 		else
 		{
-			sphere.color = WHITE;
+			segment.color = WHITE;
 		}
 
 			///
@@ -124,8 +121,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
 		
 
-		ImGui::DragFloat3("Sphere Center", &sphere.center.x, 0.01f); 
-		ImGui::DragFloat("Sphere Radius", &sphere.radius, 0.01f);   
+		ImGui::DragFloat3("segment origin.", &segment.origin.x ,0.01f);
+		ImGui::DragFloat3("ssegment diff", &segment.diff.x, 0.01f);
 		ImGui::DragFloat3("plane.normal", &plane.normal.x, 0.01f);
 		ImGui::DragFloat("plane.distance", &plane.distance, 0.01f);
 
@@ -136,8 +133,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// --- 描画処理 ---
 		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
-		matrixUtility->DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color); 
+
 		matrixUtility->DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
+
+		Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
+		start = matrixUtility->Transform(start, viewportMatrix);
+
+		Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
+		end = matrixUtility->Transform(end, viewportMatrix);
+
+		// スクリーン座標で線分を描画
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y),segment.color);
 
 		
 	
