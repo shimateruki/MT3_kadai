@@ -9,42 +9,21 @@ const char kWindowTitle[] = "LC1C_09_シマ_テルキ_タイトル";
 
 
 
-Vector3 Project(const Vector3& v1, const Vector3& v2) {
-	float v2LengthSq = v2.x * v2.x + v2.y * v2.y + v2.z * v2.z;
-	assert(v2LengthSq != 0.0f); // 0除算防止
 
-	float dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-	float scalar = dot / v2LengthSq;
-
-	Vector3 result{
-		v2.x * scalar,
-		v2.y * scalar,
-		v2.z * scalar
-	};
-
-	return result;
+float Length(const Vector3& v) {
+	
+	return sqrtf(v.x * v.x + v.y * v.y+v.z*v.z);
 }
 
-Vector3 ClossetPoint(const Vector3& point, const Segment& segment) {
-	Vector3 originToPoint{
-		point.x - segment.origin.x,
-		point.y - segment.origin.y,
-		point.z - segment.origin.z
-	};
-
-	Vector3 projected = Project(originToPoint, segment.diff);
-
-	Vector3 closest{
-		segment.origin.x + projected.x,
-		segment.origin.y + projected.y,
-		segment.origin.z + projected.z
-	};
-
-	return closest;
+bool isCollision(const Sphere& s1, const Sphere& s2)
+{
+	float distance = Length(s2.center - s1.center);
+	if (distance <= s1.radius + s2.radius)
+	{
+		return true;
+	}
+	return false;
 }
-
-
-
 
 
 
@@ -96,26 +75,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
 	Vector3 cameraPosition = { 0.0f, 1.0f, 5.0f };
 
+	Sphere sphere[2];
+	sphere[0].center = { 0, 0, 0 };
+	sphere[0].radius = { 1 };
+	sphere[0].color = WHITE;
+
+	sphere[1].center = { 1.5f, 0, 1.5f };
+	sphere[1].radius = { 1 };
+	sphere[1].color = WHITE;
 
 
 
-	Segment segment{ {-2.0f, -1.0f, 0.0f}, {3.0f, 2.0f,2.0f } };
-
-	Vector3 point{ -1.5f, 0.6f, 0.6f };
 
 
+	
 
-	//pointを線分に射影したベクトル　今回は正しく計算できているかを確認するた眼だけに使う
-	Vector3 project = Project(matrixUtility->Subtract(point, segment.origin), segment.diff);
-
-	//この値が線分上を表す
-	Vector3 clossetPoint = ClossetPoint(point, segment);
-
-	Sphere pointShere{ point, 0.01f };//1cmの球を描画
-	Sphere closePointSphere{ clossetPoint, 0.01f };
-
-
-	closePointSphere.center = clossetPoint;
+	
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -138,7 +113,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-
+		if (isCollision(sphere[0], sphere[1]))
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				sphere[i].color = RED;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				sphere[i].color = WHITE;
+			}
+		}
 
 			///
 			/// ↑更新処理ここまで
@@ -149,30 +137,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			///
 
 
+
+
 		//imGit処理
 		ImGui::Begin("Window");
-		ImGui::InputFloat3("Point", &point.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("Sement origin", &segment.origin.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("segment diff", &segment.diff.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::DragFloat3("cameraTranslate", &cameraTranslate.x, 0.01f);
+		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
+		
+		// 1つ目の球体
+		ImGui::DragFloat3("Sphere[0] Center", &sphere[0].center.x, 0.01f); 
+		ImGui::DragFloat("Sphere[0] Radius", &sphere[0].radius, 0.01f);   
+
+		// 2つ目の球体
+		ImGui::DragFloat3("Sphere[1] Center", &sphere[1].center.x, 0.01f); 
+		ImGui::DragFloat("Sphere[1] Radius", &sphere[1].radius, 0.01f);   
 		ImGui::End();
 
-		//点の描画
 	
-		matrixUtility->DrawGrid(viewProjectionMatrix, viewportMatrix);
-		matrixUtility->DrawSphere(pointShere, viewProjectionMatrix, viewportMatrix, RED);
-		matrixUtility->DrawSphere(closePointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
 
 		// --- 描画処理 ---
-	// 線分の始点と終点をスクリーン座標に変換
-		Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
-		start = matrixUtility->Transform(start, viewportMatrix);
+		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);
+		for (int i = 0; i < 2; i++)
+		{
+		
+			matrixUtility->DrawSphere(sphere[i], viewProjectionMatrix, viewportMatrix, sphere[i].color); // 赤色
 
-		Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
-		end = matrixUtility->Transform(end, viewportMatrix);
-
-		// スクリーン座標で線分を描画
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		}
+	
+	
 		///
 		/// ↑描画処理ここまで
 		///

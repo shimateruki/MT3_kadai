@@ -4,6 +4,12 @@
 #include <cassert>
 #include <corecrt_math.h>
 
+struct Vector2
+{
+	float x;
+	float y;
+};
+
 struct Vector3 {
 	float x;
 	float y;
@@ -17,12 +23,25 @@ struct Matrix4x4 {
 struct Sphere {
 	Vector3 center;
 	float radius;
+	int color;
 };
 
 struct Segment {
 	Vector3 origin;
 	Vector3 diff;
 };
+
+
+
+Vector3 operator+(const Vector3& objA, const Vector3& objB);
+Vector3 operator-(const Vector3& objA, const Vector3& objB);
+Vector3 operator+(Vector3& v, float s);
+Vector3 operator*(const Vector3& objA, const float objB);
+// 代入演算子オーバーロード
+Vector3& operator+=(Vector3& lhs, const Vector3& rhv);
+Vector3& operator-=(Vector3& lhs, const Vector3& rhv);
+Vector3& operator*=(Vector3& v, float s);
+Vector3& operator/=(Vector3& v, float s);
 
 class MatrixUtility {
 public:
@@ -64,6 +83,10 @@ public:
 
 	Vector3 Add(const Vector3& v1, const Vector3& v2);
 	Vector3 Subtract(const Vector3& v1, const Vector3& v2);
+
+	Vector3 Project(const Vector3& v1, const Vector3& v2);
+
+	Vector3 ClossetPoint(const Vector3& point, const Segment& segment);
 
 
 };

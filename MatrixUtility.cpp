@@ -1,5 +1,80 @@
 ﻿#include "MatrixUtility.h"
 
+
+
+Vector3 operator+(const Vector3& objA, const Vector3& objB)
+{
+	Vector3 sc = Vector3(0, 0, 0);
+	sc.x = objA.x + objB.x;
+	sc.y = objA.y + objB.y;
+	sc.z = objA.z + objB.z;
+	return sc;
+}
+
+Vector3 operator-(const Vector3& objA, const Vector3& objB)
+{
+	Vector3 sc = Vector3(0, 0, 0);
+	sc.x = objA.x - objB.x;
+	sc.y = objA.y - objB.y;
+	sc.z = objA.z - objB.z;
+	return sc;
+}
+
+Vector3 operator+(Vector3& v, float s) {
+	Vector3 result;
+	result.x = v.x + s;
+	result.y = v.y + s;
+	result.z = v.z + s;
+	return result;
+}
+
+Vector3 operator*(const Vector3& objA, const float objB) {
+	Vector3 sc = Vector3(0, 0, 0);
+	sc.x = objA.x + objB;
+	sc.y = objA.y + objB;
+	sc.z = objA.z + objB;
+	return sc;
+}
+
+
+Vector3& operator*=(Vector3& v, float s) {
+	v.x *= s;
+	v.y *= s;
+	v.z *= s;
+	return v;
+}
+
+Vector3& operator/=(Vector3& v, float s) {
+	v.x /= s;
+	v.y /= s;
+	v.z /= s;
+	return v;
+}
+
+
+
+
+Vector3& operator+=(Vector3& lhv, const Vector3& rhv) {
+	lhv.x += rhv.x;
+	lhv.y += rhv.y;
+	lhv.z += rhv.z;
+	return lhv;
+}
+
+Vector3& operator-=(Vector3& lhv, const Vector3& rhv) {
+	lhv.x -= rhv.x;
+	lhv.y -= rhv.y;
+	lhv.z -= rhv.z;
+	return lhv;
+}
+
+
+
+
+
+
+
+
 //透視投影行列
 Matrix4x4  MatrixUtility::MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip)
 {
@@ -319,4 +394,39 @@ Vector3 MatrixUtility::Subtract(const Vector3& v1, const Vector3& v2) {
 	result.y = v1.y - v2.y;
 	result.z = v1.z - v2.z;
 	return result;
+}
+
+
+Vector3 MatrixUtility::Project(const Vector3& v1, const Vector3& v2) {
+	float v2LengthSq = v2.x * v2.x + v2.y * v2.y + v2.z * v2.z;
+	assert(v2LengthSq != 0.0f); // 0除算防止
+
+	float dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	float scalar = dot / v2LengthSq;
+
+	Vector3 result{
+		v2.x * scalar,
+		v2.y * scalar,
+		v2.z * scalar
+	};
+
+	return result;
+}
+
+Vector3 MatrixUtility::ClossetPoint(const Vector3& point, const Segment& segment) {
+	Vector3 originToPoint{
+		point.x - segment.origin.x,
+		point.y - segment.origin.y,
+		point.z - segment.origin.z
+	};
+
+	Vector3 projected = Project(originToPoint, segment.diff);
+
+	Vector3 closest{
+		segment.origin.x + projected.x,
+		segment.origin.y + projected.y,
+		segment.origin.z + projected.z
+	};
+
+	return closest;
 }
