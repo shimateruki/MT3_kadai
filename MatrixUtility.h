@@ -31,6 +31,12 @@ struct Segment {
 	Vector3 diff;
 };
 
+struct  Plane
+{
+	Vector3 normal;//法線
+	float distance;//距離
+};
+
 
 
 Vector3 operator+(const Vector3& objA, const Vector3& objB);
