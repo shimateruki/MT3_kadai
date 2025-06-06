@@ -1,5 +1,5 @@
 ﻿#include "MatrixUtility.h"
-
+#include <cfloat> // FLT_EPSILON のために必要 (または独自のEPSILONを定義)
 
 
 Vector3 operator+(const Vector3& objA, const Vector3& objB)
@@ -467,19 +467,39 @@ bool MatrixUtility::IsCollision(const Segment& segment, const Plane& plane)
 {
 	float dot = Dot(plane.normal, segment.diff);
 
-	//垂直 == 平行であるので衝突しているわけがない
-	if (dot ==0.0f)
+	// 線分の開始点と平面の距離を計算 (dot(P0, N) - d)
+	// plane.distanceは原点から平面への距離なので、Dot(P0, N) - plane.distance で平面からの符号付き距離が求まる
+	float distanceOriginToPlane = Dot(segment.origin, plane.normal) - plane.distance;
+
+	// 線分と平面がほぼ平行な場合
+	// FLT_EPSILON は float の最小値、または十分小さい値 (例: 0.00001f)
+	if (std::fabs(dot) < FLT_EPSILON)
 	{
-		return false;
+		// 線分の開始点が平面上にあるか確認
+		// ここでも浮動小数点誤差を考慮
+		if (std::fabs(distanceOriginToPlane) < FLT_EPSILON)
+		{
+			// 線分が平面上に完全に存在する場合（平行かつ開始点が平面上）
+			// この場合、衝突と見なすのが妥当
+			return true;
+		} else
+		{
+			// 平行だが、平面上にないため、衝突していない
+			return false;
+		}
 	}
-	//tを求める
-	float t = (plane.distance - Dot(segment.origin, plane.normal)) / dot;
-	//tの値と種類によって衝突しているかを決める
-	if (t >= 0.0f &&t <=1.0f)
+
+	// tを求める
+	// float t = (plane.distance - Dot(segment.origin, plane.normal)) / dot;
+	// 上記の式は Dot(P0, N) - d の符号が逆になるため、以下のようにすると直感的
+	float t = -distanceOriginToPlane / dot; // または (Dot(segment.origin, plane.normal) - plane.distance) / -dot;
+
+	// tの値が線分内部 (0から1の範囲) にあるかで衝突を判定
+	// 端点 (0.0f や 1.0f) も含む
+	if (t >= 0.0f && t <= 1.0f)
 	{
 		return true;
-	}
-	else
+	} else
 	{
 		return false;
 	}

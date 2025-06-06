@@ -132,7 +132,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
 
 		// --- 描画処理 ---
-		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
+		/*matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	*/
 
 		matrixUtility->DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 
