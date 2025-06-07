@@ -1,5 +1,5 @@
 ﻿#include "MatrixUtility.h"
-
+#include <cfloat> // FLT_EPSILON のために必要 (または独自のEPSILONを定義)
 
 
 Vector3 operator+(const Vector3& objA, const Vector3& objB)
@@ -450,17 +450,52 @@ float MatrixUtility::Dot(const Vector3& v1, const Vector3& v2) {
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
-bool MatrixUtility::IsCollision(const Sphere& sphere, const Plane& plane)
+//bool MatrixUtility::IsCollision(const Sphere& sphere, const Plane& plane)
+//{
+//	
+//	float signedDistance = Dot(sphere.center, plane.normal) - plane.distance;
+//
+//
+//	if (fabsf(signedDistance) <= sphere.radius) 
+//	{
+//		return true; // 衝突している
+//	}
+//	return false; // 衝突していない
+//}
+
+bool MatrixUtility::IsCollision(const Segment& segment, const Plane& plane)
 {
-	
-	float signedDistance = Dot(sphere.center, plane.normal) - plane.distance;
+	float dot = Dot(plane.normal, segment.diff);
+
+	float distanceOriginToPlane = Dot(segment.origin, plane.normal) - plane.distance;
 
 
-	if (fabsf(signedDistance) <= sphere.radius) 
+	if (std::fabs(dot) < 1.0f)
 	{
-		return true; // 衝突している
+		// 線分の開始点が平面上にあるか確認
+
+		if (std::fabs(distanceOriginToPlane) < 1.0f)
+		{
+		
+			return true;
+		} else
+		{
+
+			return false;
+		}
 	}
-	return false; // 衝突していない
+
+
+	float t = -distanceOriginToPlane / dot;
+
+	
+	if (t >= 0.0f && t <= 1.0f)
+	{
+		return true;
+	} else
+	{
+		return false;
+	}
 }
 
 
