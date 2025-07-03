@@ -63,7 +63,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	plane.normal = { 0,1.0f,0 };
 	plane.distance = 0.5f;
 
-	Sphere sphere{ {0.0f, 0.0f, 0.0f}, 1.0f, WHITE }; // 球体の初期化
+
 	
 
 	Segment segment{ {-2.0f, -1.0f, 0.0f}, {2.0f, 1.0f,1.0f }, WHITE };
@@ -126,7 +126,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		if (matrixUtility->IsCollision(aabb1, sphere))
+		if (matrixUtility->IsCollision(aabb1, segment))
 		{
 			color = RED;
 		}
@@ -151,12 +151,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("cameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
 		
-		ImGui::DragFloat3("sphire", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("sphereRadius", &sphere.radius, 0.01f);
 
 
+		ImGui::DragFloat3("segment origin.", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("ssegment diff", &segment.diff.x, 0.01f);
 		ImGui::DragFloat3("aabb1Min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1Max", &aabb1.max.x, 0.01f);
+
 
 
 		  
@@ -168,8 +169,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
 
 
-		// 球体描画
-		matrixUtility->DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color);
+
+
+		Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
+		start = matrixUtility->Transform(start, viewportMatrix);
+
+		Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
+		end = matrixUtility->Transform(end, viewportMatrix);
+
+		// スクリーン座標で線分を描画
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
 	
 
 		//aabb描画

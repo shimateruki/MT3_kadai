@@ -121,6 +121,7 @@ public:
 	bool IsCollision(const Segment& segment, const Triangle& triangle);
 	bool isCollision(const AABB& aabb1, const AABB& aabb2);
 	bool IsCollision(const AABB& aabb, const Sphere& sphere);
+	bool IsCollision(const AABB& aabb, const Segment&segment);
 
 	Vector3 Perpendicular(const Vector3& vector);
 

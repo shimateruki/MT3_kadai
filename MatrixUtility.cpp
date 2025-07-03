@@ -1,4 +1,5 @@
-﻿#include "MatrixUtility.h"
+﻿#define NOMINMAX
+#include "MatrixUtility.h"
 #include <cfloat> // FLT_EPSILON のために必要 (または独自のEPSILONを定義)
 #include <cmath>
 
@@ -563,6 +564,36 @@ bool MatrixUtility::IsCollision(const AABB& aabb, const Sphere& sphere)
 	//距離が球の半径以下なら衝突している
 	return distance <= sphere.radius;
 }
+
+bool MatrixUtility::IsCollision(const AABB& aabb, const Segment& segment)
+{
+	
+       // 線分の方向ベクトルを正規化  
+       Vector3 direction = Normalize(segment.diff);  
+
+       // 線分の始点と終点を取得  
+       Vector3 p0 = segment.origin;  
+       Vector3 p1 = Add(segment.origin, segment.diff);  
+
+       // AABBの各軸に対するtNearとtFarを計算  
+       float tNearX = (direction.x > 0.0f) ? (aabb.min.x - p0.x) / direction.x : (aabb.max.x - p0.x) / direction.x;  
+       float tFarX = (direction.x > 0.0f) ? (aabb.max.x - p0.x) / direction.x : (aabb.min.x - p0.x) / direction.x;  
+
+       float tNearY = (direction.y > 0.0f) ? (aabb.min.y - p0.y) / direction.y : (aabb.max.y - p0.y) / direction.y;  
+       float tFarY = (direction.y > 0.0f) ? (aabb.max.y - p0.y) / direction.y : (aabb.min.y - p0.y) / direction.y;  
+
+       float tNearZ = (direction.z > 0.0f) ? (aabb.min.z - p0.z) / direction.z : (aabb.max.z - p0.z) / direction.z;  
+       float tFarZ = (direction.z > 0.0f) ? (aabb.max.z - p0.z) / direction.z : (aabb.min.z - p0.z) / direction.z;  
+
+       // tMinとtMaxを計算  
+       float tMin = std::max(std::max(tNearX, tNearY), tNearZ);  
+       float tMax = std::min(std::min(tFarX, tFarY), tFarZ);  
+
+       // tMin <= tMaxなら衝突している  
+       return tMin <= tMax;  
+    }
+
+
 
 
 
