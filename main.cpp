@@ -153,7 +153,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 
 
-
+		ImGui::DragFloat3("segment origin.", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("ssegment diff", &segment.diff.x, 0.01f);
 		ImGui::DragFloat3("aabb1Min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1Max", &aabb1.max.x, 0.01f);
 
