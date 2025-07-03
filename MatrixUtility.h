@@ -24,7 +24,7 @@ struct Matrix4x4 {
 struct Sphere {
 	Vector3 center;
 	float radius;
-	int color;
+	unsigned int color;
 };
 
 struct Segment {
@@ -120,6 +120,7 @@ public:
 
 	bool IsCollision(const Segment& segment, const Triangle& triangle);
 	bool isCollision(const AABB& aabb1, const AABB& aabb2);
+	bool IsCollision(const AABB& aabb, const Sphere& sphere);
 
 	Vector3 Perpendicular(const Vector3& vector);
 

@@ -63,6 +63,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	plane.normal = { 0,1.0f,0 };
 	plane.distance = 0.5f;
 
+	Sphere sphere{ {0.0f, 0.0f, 0.0f}, 1.0f, WHITE }; // 球体の初期化
 	
 
 	Segment segment{ {-2.0f, -1.0f, 0.0f}, {2.0f, 1.0f,1.0f }, WHITE };
@@ -124,7 +125,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		if (matrixUtility->isCollision(aabb1, aabb2))
+		if (matrixUtility->IsCollision(aabb1, sphere))
 		{
 			color = RED;
 		}
@@ -149,10 +150,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("cameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
 		
+		ImGui::DragFloat3("sphire", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("sphereRadius", &sphere.radius, 0.01f);
+
+
 		ImGui::DragFloat3("aabb1Min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1Max", &aabb1.max.x, 0.01f);
-		ImGui::DragFloat3("aabb2Min", &aabb2.min.x, 0.01f);
-		ImGui::DragFloat3("aabb2Max", &aabb2.max.x, 0.01f);
+
 
 		  
 		ImGui::End();
@@ -162,22 +166,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// --- 描画処理 ---
 		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
 
+
+		// 球体描画
+		matrixUtility->DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, sphere.color);
 	
 
-		//Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
-		//start = matrixUtility->Transform(start, viewportMatrix);
-
-		//Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
-		//end = matrixUtility->Transform(end, viewportMatrix);
-
-		//// スクリーン座標で線分を描画
-		//Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y),segment.color);
-
-		////三角形描画
-		//matrixUtility->DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
 		//aabb描画
 		matrixUtility->DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);
-		matrixUtility->DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, color);
+
+
+
 	
 		///
 		/// ↑描画処理ここまで
