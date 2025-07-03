@@ -72,9 +72,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		 0.0f,  0.5f, 0.0f }   // 頂点3 (奥、上)},  // 頂点1 (手前、左下)
 
 	};
+	AABB aabb1{
+		.min{-0.5f,-0.5f, -0.5f},
+		.max{0.0f, 0.0f, 0.0f}
+	};
+	AABB aabb2
+	{
+			.min{0.2f, 0.2f, 0.2f},
+			.max{1.0f, 1.0f, 1.0f}
+	};
 
 
-
+	unsigned int color = WHITE;
 	
 
 	
@@ -92,6 +101,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+
+		aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x);
+		aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y);
+		aabb1.min.z = (std::min)(aabb1.min.z, aabb1.max.z);
+		aabb1.max.x = (std::max)(aabb1.min.x, aabb1.max.x);
+		aabb1.max.y = (std::max)(aabb1.min.y, aabb1.max.y);
+		aabb1.max.z = (std::max)(aabb1.min.z, aabb1.max.z);
+
+		aabb2.min.x = (std::min)(aabb2.min.x, aabb2.max.x);
+		aabb2.min.y = (std::min)(aabb2.min.y, aabb2.max.y);
+		aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z);
+		aabb2.max.x = (std::max)(aabb2.min.x, aabb2.max.x);
+		aabb2.max.y = (std::max)(aabb2.min.y, aabb2.max.y);
+		aabb2.max.z = (std::max)(aabb2.min.z, aabb2.max.z);
+
 			//行列の計算
 
 		Matrix4x4 cameraMatrix = matrixUtility-> MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, { cameraRotate }, cameraTranslate);
@@ -100,13 +124,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		if (matrixUtility->IsCollision(segment, triangle))
+		if (matrixUtility->isCollision(aabb1, aabb2))
 		{
-			segment.color = RED;
+			color = RED;
 		}
 		else
 		{
-			segment.color = WHITE;
+			color = WHITE;
 		}
 
 			///
@@ -125,11 +149,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("cameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
 		
-
-		ImGui::DragFloat3("segment origin.", &segment.origin.x ,0.01f);
-		ImGui::DragFloat3("ssegment diff", &segment.diff.x, 0.01f);
-		ImGui::DragFloat3("plane.normal", &plane.normal.x, 0.01f);
-		ImGui::DragFloat("plane.distance", &plane.distance, 0.01f);
+		ImGui::DragFloat3("aabb1Min", &aabb1.min.x, 0.01f);
+		ImGui::DragFloat3("aabb1Max", &aabb1.max.x, 0.01f);
+		ImGui::DragFloat3("aabb2Min", &aabb2.min.x, 0.01f);
+		ImGui::DragFloat3("aabb2Max", &aabb2.max.x, 0.01f);
 
 		  
 		ImGui::End();
@@ -141,18 +164,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	
 
-		Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
-		start = matrixUtility->Transform(start, viewportMatrix);
+		//Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
+		//start = matrixUtility->Transform(start, viewportMatrix);
 
-		Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
-		end = matrixUtility->Transform(end, viewportMatrix);
+		//Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
+		//end = matrixUtility->Transform(end, viewportMatrix);
 
-		// スクリーン座標で線分を描画
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y),segment.color);
+		//// スクリーン座標で線分を描画
+		//Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y),segment.color);
 
-		//三角形描画
-		matrixUtility->DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
-	
+		////三角形描画
+		//matrixUtility->DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
+		//aabb描画
+		matrixUtility->DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);
+		matrixUtility->DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, color);
 	
 		///
 		/// ↑描画処理ここまで

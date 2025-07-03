@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cassert>
 #include <corecrt_math.h>
+#include <algorithm>
 
 struct Vector2
 {
@@ -43,6 +44,11 @@ struct Triangle
 	Vector3 vertices[3];//頂点
 };
 
+struct AABB
+{
+	Vector3 min;
+	Vector3 max;
+};
 
 
 Vector3 operator+(const Vector3& objA, const Vector3& objB);
@@ -113,6 +119,7 @@ public:
 	bool IsCollision(const Segment& segment, const Plane& plane);
 
 	bool IsCollision(const Segment& segment, const Triangle& triangle);
+	bool isCollision(const AABB& aabb1, const AABB& aabb2);
 
 	Vector3 Perpendicular(const Vector3& vector);
 
@@ -121,5 +128,6 @@ public:
 	void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
 	void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+	void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 };
 

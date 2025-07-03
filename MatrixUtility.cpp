@@ -1,5 +1,6 @@
 ﻿#include "MatrixUtility.h"
 #include <cfloat> // FLT_EPSILON のために必要 (または独自のEPSILONを定義)
+#include <cmath>
 
 
 Vector3 operator+(const Vector3& objA, const Vector3& objB)
@@ -544,6 +545,13 @@ bool MatrixUtility::IsCollision(const Segment& segment, const Triangle& triangle
    return false;  
 }
 
+bool MatrixUtility::isCollision(const AABB& aabb1, const AABB& aabb2)
+{
+	return (aabb1.max.x >= aabb2.min.x && aabb1.min.x <= aabb2.max.x) &&
+		(aabb1.max.y >= aabb2.min.y && aabb1.min.y <= aabb2.max.y) &&
+		(aabb1.max.z >= aabb2.min.z && aabb1.min.z <= aabb2.max.z);
+}
+
 
 
 
@@ -638,4 +646,38 @@ void MatrixUtility::DrawTriangle(const Triangle& triangle, const Matrix4x4& view
 		static_cast<int>(screenVertices[2].x), static_cast<int>(screenVertices[2].y), color);
 	Novice::DrawLine(static_cast<int>(screenVertices[2].x), static_cast<int>(screenVertices[2].y),
 		static_cast<int>(screenVertices[0].x), static_cast<int>(screenVertices[0].y), color);
+}
+
+void MatrixUtility::DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
+{
+	// AABBの8つのコーナーを計算
+	Vector3 corners[8] = {
+		{ aabb.min.x, aabb.min.y, aabb.min.z },
+		{ aabb.max.x, aabb.min.y, aabb.min.z },
+		{ aabb.max.x, aabb.max.y, aabb.min.z },
+		{ aabb.min.x, aabb.max.y, aabb.min.z },
+		{ aabb.min.x, aabb.min.y, aabb.max.z },
+		{ aabb.max.x, aabb.min.y, aabb.max.z },
+		{ aabb.max.x, aabb.max.y, aabb.max.z },
+		{ aabb.min.x, aabb.max.y, aabb.max.z }
+	};
+	// ビュー行列 → ビューポート行列を通してスクリーン座標に変換
+	Vector3 screenCorners[8];
+	for (int i = 0; i < 8; ++i) {
+		screenCorners[i] = Transform(Transform(corners[i], viewProjectionMatrix), viewportMatrix);
+	}
+	// AABBの各辺を描画
+	for (int i = 0; i < 4; ++i) {
+		int next = (i + 1) % 4;
+		int nextTop = next + 4;
+		// 底面の線
+		Novice::DrawLine(static_cast<int>(screenCorners[i].x), static_cast<int>(screenCorners[i].y),
+			static_cast<int>(screenCorners[next].x), static_cast<int>(screenCorners[next].y), color);
+		// 上面の線
+		Novice::DrawLine(static_cast<int>(screenCorners[i + 4].x), static_cast<int>(screenCorners[i + 4].y),
+			static_cast<int>(screenCorners[nextTop].x), static_cast<int>(screenCorners[nextTop].y), color);
+		// 側面の線
+		Novice::DrawLine(static_cast<int>(screenCorners[i].x), static_cast<int>(screenCorners[i].y),
+			static_cast<int>(screenCorners[i + 4].x), static_cast<int>(screenCorners[i + 4].y), color);
+	}
 }
