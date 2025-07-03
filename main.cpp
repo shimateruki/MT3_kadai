@@ -67,6 +67,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Segment segment{ {-2.0f, -1.0f, 0.0f}, {2.0f, 1.0f,1.0f }, WHITE };
 
+	Triangle triangle = {
+		{-0.5f, -0.5f, 1.0f, 0.5f, -0.5f, 1.0f ,   // 頂点2 (手前、右下)
+		 0.0f,  0.5f, 0.0f }   // 頂点3 (奥、上)},  // 頂点1 (手前、左下)
+
+	};
 
 
 
@@ -95,7 +100,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		if (matrixUtility->IsCollision(segment, plane))
+		if (matrixUtility->IsCollision(segment, triangle))
 		{
 			segment.color = RED;
 		}
@@ -132,9 +137,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
 
 		// --- 描画処理 ---
-		/*matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	*/
+		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
 
-		matrixUtility->DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
+	
 
 		Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
 		start = matrixUtility->Transform(start, viewportMatrix);
@@ -145,7 +150,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// スクリーン座標で線分を描画
 		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y),segment.color);
 
-		
+		//三角形描画
+		matrixUtility->DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
 	
 	
 		///
