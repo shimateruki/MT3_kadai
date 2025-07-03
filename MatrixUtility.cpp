@@ -1,5 +1,6 @@
 ﻿#include "MatrixUtility.h"
 #include <cfloat> // FLT_EPSILON のために必要 (または独自のEPSILONを定義)
+#include <cmath>
 
 
 Vector3 operator+(const Vector3& objA, const Vector3& objB)
@@ -219,11 +220,11 @@ Matrix4x4  MatrixUtility::MakeAffineMatrix(const Vector3& scale, const Vector3& 
 }
 
 Vector3 MatrixUtility::Multiply(const Vector3& v, float scalar) {
-    Vector3 result;
-    result.x = v.x * scalar;
-    result.y = v.y * scalar;
-    result.z = v.z * scalar;
-    return result;
+	Vector3 result;
+	result.x = v.x * scalar;
+	result.y = v.y * scalar;
+	result.z = v.z * scalar;
+	return result;
 }
 
 //逆行列
@@ -357,35 +358,35 @@ void  MatrixUtility::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProje
 
 // グリッド描画関数
 void  MatrixUtility::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
-		const float kGridHalfWidth = 2.0f;
-		const uint32_t kSubdivision = 10;
-		const float kGridStep = (kGridHalfWidth * 2.0f) / float(kSubdivision);
-		const uint32_t color1 = 0xAAAAAAFF; // 通常線の色（灰色）
-		const uint32_t color2 = BLACK;      // 中心線の色（黒）
+	const float kGridHalfWidth = 2.0f;
+	const uint32_t kSubdivision = 10;
+	const float kGridStep = (kGridHalfWidth * 2.0f) / float(kSubdivision);
+	const uint32_t color1 = 0xAAAAAAFF; // 通常線の色（灰色）
+	const uint32_t color2 = BLACK;      // 中心線の色（黒）
 
-		for (uint32_t i = 0; i <= kSubdivision; ++i) {
-			float pos = -kGridHalfWidth + i * kGridStep;
+	for (uint32_t i = 0; i <= kSubdivision; ++i) {
+		float pos = -kGridHalfWidth + i * kGridStep;
 
-			// 中心線かどうか判定
-			bool isCenter = (abs(pos) < 0.001f);
+		// 中心線かどうか判定
+		bool isCenter = (abs(pos) < 0.001f);
 
-			// X軸に平行な線（Z方向に位置する）
-			Vector3 startX = { -kGridHalfWidth, 0.0f, pos };
-			Vector3 endX = { kGridHalfWidth, 0.0f, pos };
-			Vector3 screenStartX = Transform(Transform(startX, viewProjectionMatrix), viewportMatrix);
-			Vector3 screenEndX = Transform(Transform(endX, viewProjectionMatrix), viewportMatrix);
-			uint32_t colorX = isCenter ? color2 : color1;
-			Novice::DrawLine(int(screenStartX.x), int(screenStartX.y), int(screenEndX.x), int(screenEndX.y), colorX);
+		// X軸に平行な線（Z方向に位置する）
+		Vector3 startX = { -kGridHalfWidth, 0.0f, pos };
+		Vector3 endX = { kGridHalfWidth, 0.0f, pos };
+		Vector3 screenStartX = Transform(Transform(startX, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenEndX = Transform(Transform(endX, viewProjectionMatrix), viewportMatrix);
+		uint32_t colorX = isCenter ? color2 : color1;
+		Novice::DrawLine(int(screenStartX.x), int(screenStartX.y), int(screenEndX.x), int(screenEndX.y), colorX);
 
-			// Z軸に平行な線（X方向に位置する）
-			Vector3 startZ = { pos, 0.0f, -kGridHalfWidth };
-			Vector3 endZ = { pos, 0.0f, kGridHalfWidth };
-			Vector3 screenStartZ = Transform(Transform(startZ, viewProjectionMatrix), viewportMatrix);
-			Vector3 screenEndZ = Transform(Transform(endZ, viewProjectionMatrix), viewportMatrix);
-			uint32_t colorZ = isCenter ? color2 : color1;
-			Novice::DrawLine(int(screenStartZ.x), int(screenStartZ.y), int(screenEndZ.x), int(screenEndZ.y), colorZ);
-		}
+		// Z軸に平行な線（X方向に位置する）
+		Vector3 startZ = { pos, 0.0f, -kGridHalfWidth };
+		Vector3 endZ = { pos, 0.0f, kGridHalfWidth };
+		Vector3 screenStartZ = Transform(Transform(startZ, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenEndZ = Transform(Transform(endZ, viewProjectionMatrix), viewportMatrix);
+		uint32_t colorZ = isCenter ? color2 : color1;
+		Novice::DrawLine(int(screenStartZ.x), int(screenStartZ.y), int(screenEndZ.x), int(screenEndZ.y), colorZ);
 	}
+}
 
 
 
@@ -476,7 +477,7 @@ bool MatrixUtility::IsCollision(const Segment& segment, const Plane& plane)
 
 		if (std::fabs(distanceOriginToPlane) < 1.0f)
 		{
-		
+
 			return true;
 		} else
 		{
@@ -488,7 +489,7 @@ bool MatrixUtility::IsCollision(const Segment& segment, const Plane& plane)
 
 	float t = -distanceOriginToPlane / dot;
 
-	
+
 	if (t >= 0.0f && t <= 1.0f)
 	{
 		return true;
@@ -498,50 +499,69 @@ bool MatrixUtility::IsCollision(const Segment& segment, const Plane& plane)
 	}
 }
 
-bool MatrixUtility::IsCollision(const Segment& segment, const Triangle& triangle) {  
-   // 各頂点を取得  
-   Vector3 v0 = triangle.vertices[0];  
-   Vector3 v1 = triangle.vertices[1];  
-   Vector3 v2 = triangle.vertices[2];  
+bool MatrixUtility::IsCollision(const Segment& segment, const Triangle& triangle) {
+	// 各頂点を取得  
+	Vector3 v0 = triangle.vertices[0];
+	Vector3 v1 = triangle.vertices[1];
+	Vector3 v2 = triangle.vertices[2];
 
-   // 線分の始点と終点を取得  
-   Vector3 p0 = segment.origin;  
-   Vector3 p1 = Add(segment.origin, segment.diff);  
+	// 線分の始点と終点を取得  
+	Vector3 p0 = segment.origin;
+	Vector3 p1 = Add(segment.origin, segment.diff);
 
-   // 線分と平面の衝突判定  
-   Plane plane;  
-   plane.normal = Normalize(Cross(Subtract(v1, v0), Subtract(v2, v0)));  
-   plane.distance = Dot(plane.normal, v0);  
+	// 線分と平面の衝突判定  
+	Plane plane;
+	plane.normal = Normalize(Cross(Subtract(v1, v0), Subtract(v2, v0)));
+	plane.distance = Dot(plane.normal, v0);
 
-   if (!IsCollision(segment, plane)) {  
-       return false;  
-   }  
+	if (!IsCollision(segment, plane)) {
+		return false;
+	}
 
-   // 衝突点を計算  
-   float dot = Dot(plane.normal, segment.diff);  
-   float distanceOriginToPlane = Dot(segment.origin, plane.normal) - plane.distance;  
-   float t = -distanceOriginToPlane / dot;  
-   Vector3 collisionPoint = Add(segment.origin, Multiply(segment.diff, t));  
+	// 衝突点を計算  
+	float dot = Dot(plane.normal, segment.diff);
+	float distanceOriginToPlane = Dot(segment.origin, plane.normal) - plane.distance;
+	float t = -distanceOriginToPlane / dot;
+	Vector3 collisionPoint = Add(segment.origin, Multiply(segment.diff, t));
 
-   // 各辺を結んだベクトルと頂点と衝突点を結んだベクトルのクロス積を計算  
-   Vector3 v0p = Subtract(collisionPoint, v0);  
-   Vector3 v1p = Subtract(collisionPoint, v1);  
-   Vector3 v2p = Subtract(collisionPoint, v2);  
+	// 各辺を結んだベクトルと頂点と衝突点を結んだベクトルのクロス積を計算  
+	Vector3 v0p = Subtract(collisionPoint, v0);
+	Vector3 v1p = Subtract(collisionPoint, v1);
+	Vector3 v2p = Subtract(collisionPoint, v2);
 
-   Vector3 v01 = Subtract(v1, v0);  
-   Vector3 v12 = Subtract(v2, v1);  
-   Vector3 v20 = Subtract(v0, v2);  
+	Vector3 v01 = Subtract(v1, v0);
+	Vector3 v12 = Subtract(v2, v1);
+	Vector3 v20 = Subtract(v0, v2);
 
-   Vector3 cross01 = Cross(v01, v1p);  
-   Vector3 cross12 = Cross(v12, v2p);  
-   Vector3 cross20 = Cross(v20, v0p);  
+	Vector3 cross01 = Cross(v01, v1p);
+	Vector3 cross12 = Cross(v12, v2p);
+	Vector3 cross20 = Cross(v20, v0p);
 
-   // 全てのクロス積の内積が正なら衝突している  
-   if (Dot(cross01, cross12) > 0.0f && Dot(cross12, cross20) > 0.0f) {  
-       return true;  
-   }  
+	// 全てのクロス積の内積が正なら衝突している  
+	if (Dot(cross01, cross12) > 0.0f && Dot(cross12, cross20) > 0.0f) {
+		return true;
+	}
 
-   return false;  
+	return false;
+}
+
+bool MatrixUtility::isCollision(const AABB& aabb1, const AABB& aabb2)
+{
+	return (aabb1.max.x >= aabb2.min.x && aabb1.min.x <= aabb2.max.x) &&
+		(aabb1.max.y >= aabb2.min.y && aabb1.min.y <= aabb2.max.y) &&
+		(aabb1.max.z >= aabb2.min.z && aabb1.min.z <= aabb2.max.z);
+}
+
+bool MatrixUtility::IsCollision(const AABB& aabb, const Sphere& sphere)
+{
+	//最近接点を求める
+	Vector3 clossetPoint{ std::clamp(sphere.center.x, aabb.min.x, aabb.max.x),
+		std::clamp(sphere.center.y, aabb.min.y, aabb.max.y),
+		std::clamp(sphere.center.z, aabb.min.z, aabb.max.z) };
+	//最近接点と球の中心の距離を求める
+    float distance = Length(Subtract(clossetPoint, sphere.center));
+	//距離が球の半径以下なら衝突している
+	return distance <= sphere.radius;
 }
 
 
@@ -558,12 +578,12 @@ Vector3 MatrixUtility::Perpendicular(const Vector3& vector)
 
 // Vector3 を正規化する関数
 Vector3 MatrixUtility::Normalize(const Vector3& v) {
-	Vector3 result = v; 
+	Vector3 result = v;
 
 	float len = Length(v);
 
 
-	if (len != 0.0f) { 
+	if (len != 0.0f) {
 		result.x /= len;
 		result.y /= len;
 		result.z /= len;
@@ -638,4 +658,38 @@ void MatrixUtility::DrawTriangle(const Triangle& triangle, const Matrix4x4& view
 		static_cast<int>(screenVertices[2].x), static_cast<int>(screenVertices[2].y), color);
 	Novice::DrawLine(static_cast<int>(screenVertices[2].x), static_cast<int>(screenVertices[2].y),
 		static_cast<int>(screenVertices[0].x), static_cast<int>(screenVertices[0].y), color);
+}
+
+void MatrixUtility::DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
+{
+	// AABBの8つのコーナーを計算
+	Vector3 corners[8] = {
+		{ aabb.min.x, aabb.min.y, aabb.min.z },
+		{ aabb.max.x, aabb.min.y, aabb.min.z },
+		{ aabb.max.x, aabb.max.y, aabb.min.z },
+		{ aabb.min.x, aabb.max.y, aabb.min.z },
+		{ aabb.min.x, aabb.min.y, aabb.max.z },
+		{ aabb.max.x, aabb.min.y, aabb.max.z },
+		{ aabb.max.x, aabb.max.y, aabb.max.z },
+		{ aabb.min.x, aabb.max.y, aabb.max.z }
+	};
+	// ビュー行列 → ビューポート行列を通してスクリーン座標に変換
+	Vector3 screenCorners[8];
+	for (int i = 0; i < 8; ++i) {
+		screenCorners[i] = Transform(Transform(corners[i], viewProjectionMatrix), viewportMatrix);
+	}
+	// AABBの各辺を描画
+	for (int i = 0; i < 4; ++i) {
+		int next = (i + 1) % 4;
+		int nextTop = next + 4;
+		// 底面の線
+		Novice::DrawLine(static_cast<int>(screenCorners[i].x), static_cast<int>(screenCorners[i].y),
+			static_cast<int>(screenCorners[next].x), static_cast<int>(screenCorners[next].y), color);
+		// 上面の線
+		Novice::DrawLine(static_cast<int>(screenCorners[i + 4].x), static_cast<int>(screenCorners[i + 4].y),
+			static_cast<int>(screenCorners[nextTop].x), static_cast<int>(screenCorners[nextTop].y), color);
+		// 側面の線
+		Novice::DrawLine(static_cast<int>(screenCorners[i].x), static_cast<int>(screenCorners[i].y),
+			static_cast<int>(screenCorners[i + 4].x), static_cast<int>(screenCorners[i + 4].y), color);
+	}
 }
