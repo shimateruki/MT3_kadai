@@ -38,6 +38,11 @@ struct  Plane
 	float distance;//距離
 };
 
+struct Triangle
+{
+	Vector3 vertices[3];//頂点
+};
+
 
 
 Vector3 operator+(const Vector3& objA, const Vector3& objB);
@@ -107,12 +112,14 @@ public:
 
 	bool IsCollision(const Segment& segment, const Plane& plane);
 
+	bool IsCollision(const Segment& segment, const Triangle& triangle);
+
 	Vector3 Perpendicular(const Vector3& vector);
 
 	Vector3 Normalize(const Vector3& v);
 
 	void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
-
+	void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 };
 
