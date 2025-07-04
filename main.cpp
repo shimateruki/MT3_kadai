@@ -1,3 +1,4 @@
+
 #include <Novice.h>
 #include <cmath>
 #include <cassert>
@@ -64,7 +65,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	plane.distance = 0.5f;
 
 
-	
+
 
 	Segment segment{ {-2.0f, -1.0f, 0.0f}, {2.0f, 1.0f,1.0f }, WHITE };
 
@@ -83,11 +84,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			.max{1.0f, 1.0f, 1.0f}
 	};
 
-	Vector3 controlPoints[3] = {
-		{ -0.8f, 0.58f, 1.0f }, // 制御点1
-		{ 1.76f, 1.0f, -0.3f }, // 制御点2
-		{ 0.94f, -0.7f, 2.3f }  // 制御点3
-	};
+
 
 	Vector3 translates[3] = {
 		{0.2f, 0.0f, 0.0f},
@@ -112,7 +109,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	unsigned int color = BLUE;
 	
 
-	
+
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -128,84 +125,89 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 			//aabb1の最小値と最大値を更新
-		//aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x);
-		//aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y);
-		//aabb1.min.z = (std::min)(aabb1.min.z, aabb1.max.z);
-		//aabb1.max.x = (std::max)(aabb1.min.x, aabb1.max.x);
-		//aabb1.max.y = (std::max)(aabb1.min.y, aabb1.max.y);
-		//aabb1.max.z = (std::max)(aabb1.min.z, aabb1.max.z);
+		aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x);
+		aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y);
+		aabb1.min.z = (std::min)(aabb1.min.z, aabb1.max.z);
+		aabb1.max.x = (std::max)(aabb1.min.x, aabb1.max.x);
+		aabb1.max.y = (std::max)(aabb1.min.y, aabb1.max.y);
+		aabb1.max.z = (std::max)(aabb1.min.z, aabb1.max.z);
 
-		////aabb2の最小値と最大値を更新
-		//aabb2.min.x = (std::min)(aabb2.min.x, aabb2.max.x);
-		//aabb2.min.y = (std::min)(aabb2.min.y, aabb2.max.y);
-		//aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z);
-		//aabb2.max.x = (std::max)(aabb2.min.x, aabb2.max.x);
-		//aabb2.max.y = (std::max)(aabb2.min.y, aabb2.max.y);
-		//aabb2.max.z = (std::max)(aabb2.min.z, aabb2.max.z);
+		//aabb2の最小値と最大値を更新
+		aabb2.min.x = (std::min)(aabb2.min.x, aabb2.max.x);
+		aabb2.min.y = (std::min)(aabb2.min.y, aabb2.max.y);
+		aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z);
+		aabb2.max.x = (std::max)(aabb2.min.x, aabb2.max.x);
+		aabb2.max.y = (std::max)(aabb2.min.y, aabb2.max.y);
+		aabb2.max.z = (std::max)(aabb2.min.z, aabb2.max.z);
 
-	
-	
+		//行列の計算
 
-
-			//行列の計算
-
-		Matrix4x4 cameraMatrix = matrixUtility-> MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, { cameraRotate }, cameraTranslate);
+		Matrix4x4 cameraMatrix = matrixUtility->MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, { cameraRotate }, cameraTranslate);
 		Matrix4x4 viewMatrix = matrixUtility->Inverse(cameraMatrix);
-		Matrix4x4 projectionMatrix = matrixUtility-> MakePerspectiveFovMatrix(0.45f, float(kWindowsWidth) / float(kWindowsHeight), 0.1f, 100.0f);
-		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
-		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
+		Matrix4x4 projectionMatrix = matrixUtility->MakePerspectiveFovMatrix(0.45f, float(kWindowsWidth) / float(kWindowsHeight), 0.1f, 100.0f);
+		Matrix4x4 viewProjectionMatrix = matrixUtility->Multiply(viewMatrix, projectionMatrix);
+		Matrix4x4 viewportMatrix = matrixUtility->MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		
-			///
-			/// ↑更新処理ここまで
-			///
+		if (matrixUtility->IsCollision(aabb1, segment))
+		{
+			color = RED;
+		} else
+		{
+			color = WHITE;
+		}
 
-			///
-			/// ↓描画処理ここから
-			///
+		///
+		/// ↑更新処理ここまで
+		///
+
+		///
+		/// ↓描画処理ここから
+		///
 
 
 
 
-		//imGit処理
+	//imGit処理
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("cameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
-		
-
-		ImGui::DragFloat3("controlPoints[0]", &controlPoints[0].x, 0.01f);
-		ImGui::DragFloat3("controlPoints[1]", &controlPoints[1].x, 0.01f);
-		ImGui::DragFloat3("controlPoints[2]", &controlPoints[2].x, 0.01f);
 
 
-		  
+
+		ImGui::DragFloat3("segment origin.", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("ssegment diff", &segment.diff.x, 0.01f);
+		ImGui::DragFloat3("aabb1Min", &aabb1.min.x, 0.01f);
+		ImGui::DragFloat3("aabb1Max", &aabb1.max.x, 0.01f);
+
+
+
+
 		ImGui::End();
 
-	
+
 
 		// --- 描画処理 ---
-		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
+		matrixUtility->DrawGrid(viewProjectionMatrix, viewportMatrix);
 
 
 
 
-		//Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
-		//start = matrixUtility->Transform(start, viewportMatrix);
+		Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
+		start = matrixUtility->Transform(start, viewportMatrix);
 
-		//Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
-		//end = matrixUtility->Transform(end, viewportMatrix);
+		Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
+		end = matrixUtility->Transform(end, viewportMatrix);
 
-		//// スクリーン座標で線分を描画
-		//Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
-	
+		// スクリーン座標で線分を描画
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
+
 
 		//aabb描画
-		/*matrixUtility->DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);*/
-
-		matrixUtility->DrawBezier(controlPoints[0], controlPoints[1], controlPoints[2], viewProjectionMatrix, viewportMatrix, color);
+		matrixUtility->DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);
 
 
-	
+
+
 		///
 		/// ↑描画処理ここまで
 		///
