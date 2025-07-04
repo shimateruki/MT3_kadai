@@ -73,7 +73,15 @@ Vector3& operator-=(Vector3& lhv, const Vector3& rhv) {
 
 
 
-
+Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) {
+	Matrix4x4 result = {};
+	for (int row = 0; row < 4; ++row) {
+		for (int col = 0; col < 4; ++col) {
+			result.m[row][col] = m1.m[row][0] * m2.m[0][col] + m1.m[row][1] * m2.m[1][col] + m1.m[row][2] * m2.m[2][col] + m1.m[row][3] * m2.m[3][col];
+		}
+	}
+	return result;
+}
 
 
 
@@ -620,6 +628,47 @@ Vector3 MatrixUtility::Normalize(const Vector3& v) {
 		result.z /= len;
 	}
 	return result;
+}
+
+Vector3 MatrixUtility::Lerp(const Vector3& v1, const Vector3& v2, float t)
+{
+
+	Vector3 result;
+	result.x = v1.x + (v2.x - v1.x) * t;
+	result.y = v1.y + (v2.y - v1.y) * t;
+	result.z = v1.z + (v2.z - v1.z) * t;
+	return result;
+}
+
+void MatrixUtility::DrawBezier(const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2, const Matrix4x4& viewProjectMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
+{
+
+	const int segments = 100; // 分割数
+
+	Vector3 prevPoint = controlPoint0; // t=0の点
+
+	for (int i = 1; i <= segments; ++i) {
+		float t = i / static_cast<float>(segments);
+
+		Vector3 p0p1 = Lerp(controlPoint0, controlPoint1, t);
+		Vector3 p1p2 = Lerp(controlPoint1, controlPoint2, t);
+		Vector3 bezierPoint = Lerp(p0p1, p1p2, t);
+
+		// ワールド座標 → ビュープロジェクション座標 → ビューポート(スクリーン)座標へ変換
+		Vector3 screenPrev = Transform(prevPoint, viewProjectMatrix);
+		screenPrev = Transform(screenPrev, viewportMatrix);
+
+		Vector3 screenCurrent = Transform(bezierPoint, viewProjectMatrix);
+		screenCurrent = Transform(screenCurrent, viewportMatrix);
+
+		// 線を描く
+		Novice::DrawLine(
+			static_cast<int>(screenPrev.x), static_cast<int>(screenPrev.y),
+			static_cast<int>(screenCurrent.x), static_cast<int>(screenCurrent.y),
+			color);
+
+		prevPoint = bezierPoint; // 更新
+	}
 }
 
 void MatrixUtility::DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)

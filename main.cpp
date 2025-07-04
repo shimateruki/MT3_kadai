@@ -83,8 +83,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			.max{1.0f, 1.0f, 1.0f}
 	};
 
+	Vector3 controlPoints[3] = {
+		{ -0.8f, 0.58f, 1.0f }, // 制御点1
+		{ 1.76f, 1.0f, -0.3f }, // 制御点2
+		{ 0.94f, -0.7f, 2.3f }  // 制御点3
+	};
 
-	unsigned int color = WHITE;
+
+	
+
+	unsigned int color = BLUE;
 	
 
 	
@@ -103,20 +111,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 			//aabb1の最小値と最大値を更新
-		aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x);
-		aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y);
-		aabb1.min.z = (std::min)(aabb1.min.z, aabb1.max.z);
-		aabb1.max.x = (std::max)(aabb1.min.x, aabb1.max.x);
-		aabb1.max.y = (std::max)(aabb1.min.y, aabb1.max.y);
-		aabb1.max.z = (std::max)(aabb1.min.z, aabb1.max.z);
+		//aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x);
+		//aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y);
+		//aabb1.min.z = (std::min)(aabb1.min.z, aabb1.max.z);
+		//aabb1.max.x = (std::max)(aabb1.min.x, aabb1.max.x);
+		//aabb1.max.y = (std::max)(aabb1.min.y, aabb1.max.y);
+		//aabb1.max.z = (std::max)(aabb1.min.z, aabb1.max.z);
 
-		//aabb2の最小値と最大値を更新
-		aabb2.min.x = (std::min)(aabb2.min.x, aabb2.max.x);
-		aabb2.min.y = (std::min)(aabb2.min.y, aabb2.max.y);
-		aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z);
-		aabb2.max.x = (std::max)(aabb2.min.x, aabb2.max.x);
-		aabb2.max.y = (std::max)(aabb2.min.y, aabb2.max.y);
-		aabb2.max.z = (std::max)(aabb2.min.z, aabb2.max.z);
+		////aabb2の最小値と最大値を更新
+		//aabb2.min.x = (std::min)(aabb2.min.x, aabb2.max.x);
+		//aabb2.min.y = (std::min)(aabb2.min.y, aabb2.max.y);
+		//aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z);
+		//aabb2.max.x = (std::max)(aabb2.min.x, aabb2.max.x);
+		//aabb2.max.y = (std::max)(aabb2.min.y, aabb2.max.y);
+		//aabb2.max.z = (std::max)(aabb2.min.z, aabb2.max.z);
+
+	
+	
+
 
 			//行列の計算
 
@@ -126,15 +138,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = matrixUtility-> Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility-> MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		if (matrixUtility->IsCollision(aabb1, segment))
-		{
-			color = RED;
-		}
-		else
-		{
-			color = WHITE;
-		}
-
+		
 			///
 			/// ↑更新処理ここまで
 			///
@@ -152,12 +156,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
 		
 
-
-		ImGui::DragFloat3("segment origin.", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("ssegment diff", &segment.diff.x, 0.01f);
-		ImGui::DragFloat3("aabb1Min", &aabb1.min.x, 0.01f);
-		ImGui::DragFloat3("aabb1Max", &aabb1.max.x, 0.01f);
-
+		ImGui::DragFloat3("controlPoints[0]", &controlPoints[0].x, 0.01f);
+		ImGui::DragFloat3("controlPoints[1]", &controlPoints[1].x, 0.01f);
+		ImGui::DragFloat3("controlPoints[2]", &controlPoints[2].x, 0.01f);
 
 
 		  
@@ -171,19 +172,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
-		start = matrixUtility->Transform(start, viewportMatrix);
+		//Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
+		//start = matrixUtility->Transform(start, viewportMatrix);
 
-		Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
-		end = matrixUtility->Transform(end, viewportMatrix);
+		//Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
+		//end = matrixUtility->Transform(end, viewportMatrix);
 
-		// スクリーン座標で線分を描画
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
+		//// スクリーン座標で線分を描画
+		//Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
 	
 
 		//aabb描画
-		matrixUtility->DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);
+		/*matrixUtility->DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);*/
 
+		matrixUtility->DrawBezier(controlPoints[0], controlPoints[1], controlPoints[2], viewProjectionMatrix, viewportMatrix, color);
 
 
 	
