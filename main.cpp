@@ -85,8 +85,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 
 
-	unsigned int color = WHITE;
 
+	Vector3 translates[3] = {
+		{0.2f, 0.0f, 0.0f},
+		{0.4f, 0.0f, 0.0f},
+		{0.0f, 0.0f, 0.0f},
+
+	};
+
+	Vector3 rotates[3] = {
+		{0.0f, 0.0f, -6.8f},
+		{0.0f, 0.0f, -1.4f},
+		{0.0f, 0.0f, 0.0f},
+	};
+
+	Vector3 scales[3] = {
+		{1.0f, 1.0f, 1.0f},
+		{1.0f, 1.0f, 1.0f},
+		{1.0f, 1.0f, 1.0f},
+	};
+	
+	//カラー
+	unsigned int color = BLUE;
+	
 
 
 
