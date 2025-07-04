@@ -523,15 +523,13 @@ bool MatrixUtility::IsCollision(const Segment& segment, const Triangle& triangle
 	plane.normal = Normalize(Cross(Subtract(v1, v0), Subtract(v2, v0)));
 	plane.distance = Dot(plane.normal, v0);
 
-	if (!IsCollision(segment, plane)) {
-		return false;
-	}
 
 	// 衝突点を計算  
 	float dot = Dot(plane.normal, segment.diff);
 	float distanceOriginToPlane = Dot(segment.origin, plane.normal) - plane.distance;
 	float t = -distanceOriginToPlane / dot;
 	Vector3 collisionPoint = Add(segment.origin, Multiply(segment.diff, t));
+
 
 	// 各辺を結んだベクトルと頂点と衝突点を結んだベクトルのクロス積を計算  
 	Vector3 v0p = Subtract(collisionPoint, v0);
