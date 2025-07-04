@@ -108,7 +108,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{1.0f, 1.0f, 1.0f},
 	};
 	
-
+	//カラー
 	unsigned int color = BLUE;
 	
 
