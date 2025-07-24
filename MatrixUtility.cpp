@@ -3,24 +3,23 @@
 #include <cfloat> // FLT_EPSILON のために必要 (または独自のEPSILONを定義)
 #include <cmath>
 
-
-Vector3 operator+(const Vector3& objA, const Vector3& objB)
-{
-	Vector3 sc = Vector3(0, 0, 0);
-	sc.x = objA.x + objB.x;
-	sc.y = objA.y + objB.y;
-	sc.z = objA.z + objB.z;
-	return sc;
+// ------------------------------------
+// Vector3の演算子オーバーロード
+// ------------------------------------
+Vector3 operator+(const Vector3& v1, const Vector3& v2) {
+	return { v1.x + v2.x, v1.y + v2.y, v1.z + v2.z };
 }
 
-Vector3 operator-(const Vector3& objA, const Vector3& objB)
-{
-	Vector3 sc = Vector3(0, 0, 0);
-	sc.x = objA.x - objB.x;
-	sc.y = objA.y - objB.y;
-	sc.z = objA.z - objB.z;
-	return sc;
+Vector3 operator-(const Vector3& v1, const Vector3& v2) {
+	return { v1.x - v2.x, v1.y - v2.y, v1.z - v2.z };
 }
+
+Vector3 operator*(const Vector3& v, float scalar) {
+	return { v.x * scalar, v.y * scalar, v.z * scalar };
+}
+
+
+
 
 Vector3 operator+(Vector3& v, float s) {
 	Vector3 result;
@@ -30,13 +29,6 @@ Vector3 operator+(Vector3& v, float s) {
 	return result;
 }
 
-Vector3 operator*(const Vector3& objA, const float objB) {
-	Vector3 sc = Vector3(0, 0, 0);
-	sc.x = objA.x + objB;
-	sc.y = objA.y + objB;
-	sc.z = objA.z + objB;
-	return sc;
-}
 
 
 Vector3& operator*=(Vector3& v, float s) {
@@ -73,16 +65,19 @@ Vector3& operator-=(Vector3& lhv, const Vector3& rhv) {
 
 
 
+
 Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) {
 	Matrix4x4 result = {};
-	for (int row = 0; row < 4; ++row) {
-		for (int col = 0; col < 4; ++col) {
-			result.m[row][col] = m1.m[row][0] * m2.m[0][col] + m1.m[row][1] * m2.m[1][col] + m1.m[row][2] * m2.m[2][col] + m1.m[row][3] * m2.m[3][col];
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result.m[i][j] = m1.m[i][0] * m2.m[0][j] +
+				m1.m[i][1] * m2.m[1][j] +
+				m1.m[i][2] * m2.m[2][j] +
+				m1.m[i][3] * m2.m[3][j];
 		}
 	}
 	return result;
 }
-
 
 
 //透視投影行列
