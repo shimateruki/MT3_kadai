@@ -61,6 +61,8 @@ Vector3& operator-=(Vector3& lhs, const Vector3& rhv);
 Vector3& operator*=(Vector3& v, float s);
 Vector3& operator/=(Vector3& v, float s);
 
+Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2);
+
 class MatrixUtility {
 public:
 	//透視投影行列
