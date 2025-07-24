@@ -1,16 +1,11 @@
-
 #include <Novice.h>
 #include <cmath>
 #include <cassert>
 #include <corecrt_math.h>
-#include<imgui.h>
+#include <imgui.h>
 #include "MatrixUtility.h"
 
 const char kWindowTitle[] = "LC1C_09_シマ_テルキ_タイトル";
-
-
-
-
 
 static const int kRowHeight = 30;
 static const int kColuWidth = 80;
@@ -22,10 +17,6 @@ void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label)
 	Novice::ScreenPrintf(x + kColuWidth * 2, y, "%.02f", vector.z);
 	Novice::ScreenPrintf(x + kColuWidth * 3, y, "%s", label);
 }
-
-
-
-
 
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label)
 {
@@ -39,10 +30,14 @@ void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label
 	}
 }
 
-
 int kWindowsWidth = 1280;
 int kWindowsHeight = 720;
 
+struct Node {
+	Vector3 translate;
+	Vector3 rotate;
+	Vector3 scale;
+};
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -55,61 +50,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = { 0 };
 
 	MatrixUtility* matrixUtility = new MatrixUtility();
-	//カメラ
+
+	// カメラ
 	Vector3 cameraTranslate = { 0.0f, 1.9f, -6.49f };
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
-	Vector3 cameraPosition = { 0.0f, 1.0f, 5.0f };
 
-	Plane plane;
-	plane.normal = { 0,1.0f,0 };
-	plane.distance = 0.5f;
-
-
-
-
-	Segment segment{ {-2.0f, -1.0f, 0.0f}, {2.0f, 1.0f,1.0f }, WHITE };
-
-	Triangle triangle = {
-		{-0.5f, -0.5f, 1.0f, 0.5f, -0.5f, 1.0f ,   // 頂点2 (手前、右下)
-		 0.0f,  0.5f, 0.0f }   // 頂点3 (奥、上)},  // 頂点1 (手前、左下)
-
+	// 階層構造ノードの定義と初期値設定
+	Node shoulder = {
+		.translate = {0.2f, 1.0f, 0.0f},
+		.rotate = {0.0f, 0.0f, -6.0f},
+		.scale = {1.0f, 1.0f, 1.0f}
 	};
-	AABB aabb1{
-		.min{-0.5f,-0.5f, -0.5f},
-		.max{0.0f, 0.0f, 0.0f}
+	Node elbow = {
+		.translate = {0.4f, 0.0f, 0.0f},
+		.rotate = {0.0f, 0.0f, -1.4f},
+		.scale = {1.0f, 1.0f, 1.0f}
 	};
-	AABB aabb2
-	{
-			.min{0.2f, 0.2f, 0.2f},
-			.max{1.0f, 1.0f, 1.0f}
+	Node hand = {
+		.translate = {0.3f, 0.0f, 0.0f},
+		.rotate = {0.0f, 0.0f, 0.0f},
+		.scale = {1.0f, 1.0f, 1.0f}
 	};
-
-
-
-	Vector3 translates[3] = {
-		{0.2f, 0.0f, 0.0f},
-		{0.4f, 0.0f, 0.0f},
-		{0.0f, 0.0f, 0.0f},
-
-	};
-
-	Vector3 rotates[3] = {
-		{0.0f, 0.0f, -6.8f},
-		{0.0f, 0.0f, -1.4f},
-		{0.0f, 0.0f, 0.0f},
-	};
-
-	Vector3 scales[3] = {
-		{1.0f, 1.0f, 1.0f},
-		{1.0f, 1.0f, 1.0f},
-		{1.0f, 1.0f, 1.0f},
-	};
-	
-	//カラー
-	unsigned int color = BLUE;
-	
-
-
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -124,37 +85,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-			//aabb1の最小値と最大値を更新
-		aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x);
-		aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y);
-		aabb1.min.z = (std::min)(aabb1.min.z, aabb1.max.z);
-		aabb1.max.x = (std::max)(aabb1.min.x, aabb1.max.x);
-		aabb1.max.y = (std::max)(aabb1.min.y, aabb1.max.y);
-		aabb1.max.z = (std::max)(aabb1.min.z, aabb1.max.z);
+		// ノードのワールド行列を計算
+		Matrix4x4 worldMatrix_shoulder = matrixUtility->MakeAffineMatrix(shoulder.scale, shoulder.rotate, shoulder.translate);
+		Matrix4x4 worldMatrix_elbow = matrixUtility->Multiply(matrixUtility->MakeAffineMatrix(elbow.scale, elbow.rotate, elbow.translate), worldMatrix_shoulder);
+		Matrix4x4 worldMatrix_hand = matrixUtility->Multiply(matrixUtility->MakeAffineMatrix(hand.scale, hand.rotate, hand.translate), worldMatrix_elbow);
 
-		//aabb2の最小値と最大値を更新
-		aabb2.min.x = (std::min)(aabb2.min.x, aabb2.max.x);
-		aabb2.min.y = (std::min)(aabb2.min.y, aabb2.max.y);
-		aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z);
-		aabb2.max.x = (std::max)(aabb2.min.x, aabb2.max.x);
-		aabb2.max.y = (std::max)(aabb2.min.y, aabb2.max.y);
-		aabb2.max.z = (std::max)(aabb2.min.z, aabb2.max.z);
+		// 描画用の球と線分のワールド座標を計算
+		Sphere sphere_shoulder = { matrixUtility->Transform({0.0f, 0.0f, 0.0f}, worldMatrix_shoulder), 0.1f };
+		Sphere sphere_elbow = { matrixUtility->Transform({0.0f, 0.0f, 0.0f}, worldMatrix_elbow), 0.1f };
+		Sphere sphere_hand = { matrixUtility->Transform({0.0f, 0.0f, 0.0f}, worldMatrix_hand), 0.1f };
 
-		//行列の計算
+		// 線分は親ノードの位置から子ノードの位置まで
+		Segment segment_shoulder_elbow = {
+			.origin = sphere_shoulder.center,
+			.diff = matrixUtility->Subtract(sphere_elbow.center, sphere_shoulder.center)
+		};
+		Segment segment_elbow_hand = {
+			.origin = sphere_elbow.center,
+			.diff = matrixUtility->Subtract(sphere_hand.center, sphere_elbow.center)
+		};
 
+		// カメラ行列
 		Matrix4x4 cameraMatrix = matrixUtility->MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, { cameraRotate }, cameraTranslate);
 		Matrix4x4 viewMatrix = matrixUtility->Inverse(cameraMatrix);
 		Matrix4x4 projectionMatrix = matrixUtility->MakePerspectiveFovMatrix(0.45f, float(kWindowsWidth) / float(kWindowsHeight), 0.1f, 100.0f);
 		Matrix4x4 viewProjectionMatrix = matrixUtility->Multiply(viewMatrix, projectionMatrix);
 		Matrix4x4 viewportMatrix = matrixUtility->MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
-
-		if (matrixUtility->IsCollision(aabb1, segment))
-		{
-			color = RED;
-		} else
-		{
-			color = WHITE;
-		}
 
 		///
 		/// ↑更新処理ここまで
@@ -164,61 +120,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-
-
-
-	//imGit処理
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("cameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
-
-
-
-		ImGui::DragFloat3("segment origin.", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("ssegment diff", &segment.diff.x, 0.01f);
-		ImGui::DragFloat3("aabb1Min", &aabb1.min.x, 0.01f);
-		ImGui::DragFloat3("aabb1Max", &aabb1.max.x, 0.01f);
-
-
-
-
+		ImGui::DragFloat3("shoulder translate", &shoulder.translate.x, 0.01f);
+		ImGui::DragFloat3("shoulder rotate", &shoulder.rotate.x, 0.01f);
+		ImGui::DragFloat3("elbow translate", &elbow.translate.x, 0.01f);
+		ImGui::DragFloat3("elbow rotate", &elbow.rotate.x, 0.01f);
+		ImGui::DragFloat3("hand translate", &hand.translate.x, 0.01f);
+		ImGui::DragFloat3("hand rotate", &hand.rotate.x, 0.01f);
 		ImGui::End();
 
-
-
-		// --- 描画処理 ---
+		// グリッド描画
 		matrixUtility->DrawGrid(viewProjectionMatrix, viewportMatrix);
 
+		// 球と線分を描画
+		matrixUtility->DrawSphere(sphere_shoulder, viewProjectionMatrix, viewportMatrix, RED);
+		matrixUtility->DrawSphere(sphere_elbow, viewProjectionMatrix, viewportMatrix, GREEN);
+		matrixUtility->DrawSphere(sphere_hand, viewProjectionMatrix, viewportMatrix, BLUE);
 
+		// 線分はワールド座標で描画
+		Vector3 screenShoulder = matrixUtility->Transform(matrixUtility->Transform(segment_shoulder_elbow.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenElbow = matrixUtility->Transform(matrixUtility->Transform(matrixUtility->Add(segment_shoulder_elbow.origin, segment_shoulder_elbow.diff), viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(static_cast<int>(screenShoulder.x), static_cast<int>(screenShoulder.y), static_cast<int>(screenElbow.x), static_cast<int>(screenElbow.y), WHITE);
 
-
-		Vector3 start = matrixUtility->Transform(segment.origin, viewProjectionMatrix);
-		start = matrixUtility->Transform(start, viewportMatrix);
-
-		Vector3 end = matrixUtility->Transform(matrixUtility->Add(segment.origin, segment.diff), viewProjectionMatrix);
-		end = matrixUtility->Transform(end, viewportMatrix);
-
-		// スクリーン座標で線分を描画
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), segment.color);
-
-
-		//aabb描画
-		matrixUtility->DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, color);
-
-
-
+		Vector3 screenHand = matrixUtility->Transform(matrixUtility->Transform(matrixUtility->Add(segment_elbow_hand.origin, segment_elbow_hand.diff), viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(static_cast<int>(screenElbow.x), static_cast<int>(screenElbow.y), static_cast<int>(screenHand.x), static_cast<int>(screenHand.y), WHITE);
 
 		///
 		/// ↑描画処理ここまで
 		///
 
-
-
-			///
-			/// ↑描画処理ここまで
-			///
-
-			// フレームの終了
+		// フレームの終了
 		Novice::EndFrame();
 
 		// ESCキーが押されたらループを抜ける
