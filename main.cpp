@@ -55,18 +55,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = { 0.0f, 1.9f, -6.49f };
 	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
 
-	// スライドの例に沿った変数の定義
-	Vector3 a{ 0.2f, 1.0f, 0.0f };
-	Vector3 b{ 2.4f, 3.1f, 1.2f };
-	Vector3 c{};
-	Vector3 d{};
-	Vector3 e{};
-
-	Vector3 rotate{ 0.4f, 1.43f, -0.8f };
-	Matrix4x4 rotateXMatrix{};
-	Matrix4x4 rotateYMatrix{};
-	Matrix4x4 rotateZMatrix{};
-	Matrix4x4 rotateMatrix{};
+	// 階層構造ノードの定義と初期値設定
+	Node shoulder = {
+		.translate = {0.2f, 1.0f, 0.0f},
+		.rotate = {0.0f, 0.0f, -6.0f},
+		.scale = {1.0f, 1.0f, 1.0f}
+	};
+	Node elbow = {
+		.translate = {0.4f, 0.0f, 0.0f},
+		.rotate = {0.0f, 0.0f, -1.4f},
+		.scale = {1.0f, 1.0f, 1.0f}
+	};
+	Node hand = {
+		.translate = {0.3f, 0.0f, 0.0f},
+		.rotate = {0.0f, 0.0f, 0.0f},
+		.scale = {1.0f, 1.0f, 1.0f}
+	};
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -81,29 +85,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		// ノードのワールド行列を計算
+		Matrix4x4 worldMatrix_shoulder = matrixUtility->MakeAffineMatrix(shoulder.scale, shoulder.rotate, shoulder.translate);
+		Matrix4x4 worldMatrix_elbow = matrixUtility->Multiply(matrixUtility->MakeAffineMatrix(elbow.scale, elbow.rotate, elbow.translate), worldMatrix_shoulder);
+		Matrix4x4 worldMatrix_hand = matrixUtility->Multiply(matrixUtility->MakeAffineMatrix(hand.scale, hand.rotate, hand.translate), worldMatrix_elbow);
 
+		// 描画用の球と線分のワールド座標を計算
+		Sphere sphere_shoulder = { matrixUtility->Transform({0.0f, 0.0f, 0.0f}, worldMatrix_shoulder), 0.1f };
+		Sphere sphere_elbow = { matrixUtility->Transform({0.0f, 0.0f, 0.0f}, worldMatrix_elbow), 0.1f };
+		Sphere sphere_hand = { matrixUtility->Transform({0.0f, 0.0f, 0.0f}, worldMatrix_hand), 0.1f };
 
-		c = a + b;
-		d = a - b;
-		e = a * 2.4f;
+		// 線分は親ノードの位置から子ノードの位置まで
+		Segment segment_shoulder_elbow = {
+			.origin = sphere_shoulder.center,
+			.diff = matrixUtility->Subtract(sphere_elbow.center, sphere_shoulder.center)
+		};
+		Segment segment_elbow_hand = {
+			.origin = sphere_elbow.center,
+			.diff = matrixUtility->Subtract(sphere_hand.center, sphere_elbow.center)
+		};
 
-		rotateXMatrix = matrixUtility->MakeRotateXMatrix(rotate.x);
-		rotateYMatrix = matrixUtility->MakeRotateYMatrix(rotate.y);
-		rotateZMatrix = matrixUtility->MakeRotateZMatrix(rotate.z);
-		rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
+		// カメラ行列
+		Matrix4x4 cameraMatrix = matrixUtility->MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, { cameraRotate }, cameraTranslate);
+		Matrix4x4 viewMatrix = matrixUtility->Inverse(cameraMatrix);
+		Matrix4x4 projectionMatrix = matrixUtility->MakePerspectiveFovMatrix(0.45f, float(kWindowsWidth) / float(kWindowsHeight), 0.1f, 100.0f);
+		Matrix4x4 viewProjectionMatrix = matrixUtility->Multiply(viewMatrix, projectionMatrix);
+		Matrix4x4 viewportMatrix = matrixUtility->MakeViewportMatrix(0, 0, float(kWindowsWidth), float(kWindowsHeight), 0.0f, 1.0f);
 
-		// ImGuiの表示
-		ImGui::Begin("Window");
-		ImGui::Text("c:%.2f, %.2f, %.2f", c.x, c.y, c.z);
-		ImGui::Text("d:%.2f, %.2f, %.2f", d.x, d.y, d.z);
-		ImGui::Text("e:%.2f, %.2f, %.2f", e.x, e.y, e.z);
-
-		ImGui::Text("matrix:%f, %f, %f,%f,\n %f, %f %f,%f \n, %f,%f,%f,%f\n,%f,%f,%f, %f\n",
-			rotateMatrix.m[0][0], rotateMatrix.m[0][1], rotateMatrix.m[0][2], rotateMatrix.m[0][3],
-			rotateMatrix.m[1][0], rotateMatrix.m[1][1], rotateMatrix.m[1][2], rotateMatrix.m[1][3],
-			rotateMatrix.m[2][0], rotateMatrix.m[2][1], rotateMatrix.m[2][2], rotateMatrix.m[2][3],
-			rotateMatrix.m[3][0], rotateMatrix.m[3][1], rotateMatrix.m[3][2], rotateMatrix.m[3][3]);
-		ImGui::End();
 		///
 		/// ↑更新処理ここまで
 		///
@@ -111,8 +119,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+		//
+		ImGui::Begin("Window");
+		ImGui::DragFloat3("cameraTranslate", &cameraTranslate.x, 0.01f);
+		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
+		ImGui::DragFloat3("shoulder translate", &shoulder.translate.x, 0.01f);
+		ImGui::DragFloat3("shoulder rotate", &shoulder.rotate.x, 0.01f);
+		ImGui::DragFloat3("elbow translate", &elbow.translate.x, 0.01f);
+		ImGui::DragFloat3("elbow rotate", &elbow.rotate.x, 0.01f);
+		ImGui::DragFloat3("hand translate", &hand.translate.x, 0.01f);
+		ImGui::DragFloat3("hand rotate", &hand.rotate.x, 0.01f);
+		ImGui::End();
 
-	
+		// グリッド描画
+		matrixUtility->DrawGrid(viewProjectionMatrix, viewportMatrix);
+
+		// 球と線分を描画
+		matrixUtility->DrawSphere(sphere_shoulder, viewProjectionMatrix, viewportMatrix, RED);
+		matrixUtility->DrawSphere(sphere_elbow, viewProjectionMatrix, viewportMatrix, GREEN);
+		matrixUtility->DrawSphere(sphere_hand, viewProjectionMatrix, viewportMatrix, BLUE);
+
+		// 線分はワールド座標で描画
+		Vector3 screenShoulder = matrixUtility->Transform(matrixUtility->Transform(segment_shoulder_elbow.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 screenElbow = matrixUtility->Transform(matrixUtility->Transform(matrixUtility->Add(segment_shoulder_elbow.origin, segment_shoulder_elbow.diff), viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(static_cast<int>(screenShoulder.x), static_cast<int>(screenShoulder.y), static_cast<int>(screenElbow.x), static_cast<int>(screenElbow.y), WHITE);
+
+		Vector3 screenHand = matrixUtility->Transform(matrixUtility->Transform(matrixUtility->Add(segment_elbow_hand.origin, segment_elbow_hand.diff), viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(static_cast<int>(screenElbow.x), static_cast<int>(screenElbow.y), static_cast<int>(screenHand.x), static_cast<int>(screenHand.y), WHITE);
+
 		///
 		/// ↑描画処理ここまで
 		///
