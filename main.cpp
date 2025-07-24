@@ -164,7 +164,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		  
 		ImGui::End();
 
-	　
 
 		// --- 描画処理 ---
 		matrixUtility ->DrawGrid(viewProjectionMatrix, viewportMatrix);	
