@@ -39,6 +39,27 @@ struct Node {
 	Vector3 scale;
 };
 
+struct  Spring
+{
+	//アンカー　固定された端の位置
+	Vector3 anchor;
+	float naturalLength;
+	float stiffness; //ばね定数
+	float damping; //減衰係数
+
+};
+
+struct  Ball
+{
+	Vector3 position; //位置
+	Vector3 velocity; //速度
+	Vector3 cceleration; //加速度
+	float mass; //質量
+	float radius; //半径
+	unsigned int color; //色
+};
+
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -51,22 +72,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	MatrixUtility* matrixUtility = new MatrixUtility();
 
-	// カメラ
-	Vector3 cameraTranslate = { 0.0f, 1.9f, -6.49f };
-	Vector3 cameraRotate = { 0.26f, 0.0f, 0.0f };
+	Spring spring;
+	spring.anchor = { 0.0f, 0.0f, 0.0f };
+	spring.naturalLength = 1.0f; // 自然長
+	spring.stiffness = 100.0f; // ばね定数
+	spring.damping = 2.0f; // 減衰係数
 
-	// スライドの例に沿った変数の定義
-	Vector3 a{ 0.2f, 1.0f, 0.0f };
-	Vector3 b{ 2.4f, 3.1f, 1.2f };
-	Vector3 c{};
-	Vector3 d{};
-	Vector3 e{};
+	Ball ball{};
+	ball.position = { 1.2f, 0.0f, 0.0f };
+	ball.mass = 2.0f; // 質量
+	ball.radius = 0.95f; // 半径
+	ball.color = BLUE;
 
-	Vector3 rotate{ 0.4f, 1.43f, -0.8f };
-	Matrix4x4 rotateXMatrix{};
-	Matrix4x4 rotateYMatrix{};
-	Matrix4x4 rotateZMatrix{};
-	Matrix4x4 rotateMatrix{};
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -81,29 +98,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		Vector3 diff = ball.position - spring.anchor; // ボールの位置とアンカーの差分
+		float length = matrixUtility->Length(diff); // 差分の長さ
+		if (length != 0.0f)
+		{
+			Vector3 direction = matrixUtility->Normalize(diff);
+			Vector3 restPosition = spring.anchor + direction * spring.naturalLength; // 自然長に基づく位置
+			Vector3 displacement = length * (ball.position - restPosition);
 
-
-		c = a + b;
-		d = a - b;
-		e = a * 2.4f;
-
-		rotateXMatrix = matrixUtility->MakeRotateXMatrix(rotate.x);
-		rotateYMatrix = matrixUtility->MakeRotateYMatrix(rotate.y);
-		rotateZMatrix = matrixUtility->MakeRotateZMatrix(rotate.z);
-		rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
-
-		// ImGuiの表示
-		ImGui::Begin("Window");
-		ImGui::Text("c:%.2f, %.2f, %.2f", c.x, c.y, c.z);
-		ImGui::Text("d:%.2f, %.2f, %.2f", d.x, d.y, d.z);
-		ImGui::Text("e:%.2f, %.2f, %.2f", e.x, e.y, e.z);
-
-		ImGui::Text("matrix:%f, %f, %f,%f,\n %f, %f %f,%f \n, %f,%f,%f,%f\n,%f,%f,%f, %f\n",
-			rotateMatrix.m[0][0], rotateMatrix.m[0][1], rotateMatrix.m[0][2], rotateMatrix.m[0][3],
-			rotateMatrix.m[1][0], rotateMatrix.m[1][1], rotateMatrix.m[1][2], rotateMatrix.m[1][3],
-			rotateMatrix.m[2][0], rotateMatrix.m[2][1], rotateMatrix.m[2][2], rotateMatrix.m[2][3],
-			rotateMatrix.m[3][0], rotateMatrix.m[3][1], rotateMatrix.m[3][2], rotateMatrix.m[3][3]);
-		ImGui::End();
+		}
 		///
 		/// ↑更新処理ここまで
 		///

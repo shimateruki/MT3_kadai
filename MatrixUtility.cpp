@@ -18,6 +18,10 @@ Vector3 operator*(const Vector3& v, float scalar) {
 	return { v.x * scalar, v.y * scalar, v.z * scalar };
 }
 
+Vector3 operator*(const Vector3& objA, const Vector3& objB) {
+	return { objA.x * objB.x, objA.y * objB.y, objA.z * objB.z };
+}
+
 
 
 
@@ -765,4 +769,10 @@ void MatrixUtility::DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMa
 		Novice::DrawLine(static_cast<int>(screenCorners[i].x), static_cast<int>(screenCorners[i].y),
 			static_cast<int>(screenCorners[i + 4].x), static_cast<int>(screenCorners[i + 4].y), color);
 	}
+}
+
+float MatrixUtility::Length(const Vector3& v)
+{
+	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+
 }

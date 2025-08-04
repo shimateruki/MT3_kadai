@@ -55,6 +55,8 @@ Vector3 operator+(const Vector3& objA, const Vector3& objB);
 Vector3 operator-(const Vector3& objA, const Vector3& objB);
 Vector3 operator+(Vector3& v, float s);
 Vector3 operator*(const Vector3& objA, const float objB);
+Vector3 operator*(const Vector3& objA, const Vector3& objB);
+Vector3 operator*(const Vector3& objA, const Vector3& objB);
 // 代入演算子オーバーロード
 Vector3& operator+=(Vector3& lhs, const Vector3& rhv);
 Vector3& operator-=(Vector3& lhs, const Vector3& rhv);
@@ -138,5 +140,6 @@ public:
 
 	void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 	void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+	float Length(const Vector3& v);
 };
 
